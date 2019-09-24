@@ -1,0 +1,33 @@
+{
+  "data": [{
+    "privilege": "顶部平台广告",
+    "nvip": "不可去除",
+    "vip": "去除"
+  }, {
+    "privilege": "自选热文",
+    "nvip": "5次/月",
+    "vip": "不限量"
+  }, {
+    "privilege": "推荐热文",
+    "nvip": "5篇/月",
+    "vip": "不限量"
+  }, {
+    "privilege": "底部广告",
+    "nvip": "1条",
+    "vip": "8条轮播"
+  }],
+  "columns": [
+    {
+      "title": " ",
+      "key": "privilege"
+    },
+    {
+      "title": "非会员",
+      "key": "nvip"
+    },
+    {
+      "title": "会员",
+      "key": "vip"
+    }
+  ]
+}

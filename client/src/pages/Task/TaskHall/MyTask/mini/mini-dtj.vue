@@ -1,0 +1,247 @@
+<style scoped lang="less">
+.item{
+  width: 100%;
+  padding: 25px 15px 25px;
+  background: #fff;
+  border-bottom: 3px solid #f0f0f0;
+  .Box{
+    .topImgBox{
+      width: 60px;
+      height: 60px;
+      float: left;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-right: 15px;
+      img{
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .cenTxtBox{
+      .cenTit{
+        font-size: 14px;
+        color: #333;
+        padding-top: 5px;
+        opacity: 1;
+      }
+      .cenMoney{
+        margin-top: 25px;
+        font-size: 12px;
+        p{
+          color:#999;
+        }
+        span{
+          color: rgb(255,90,61);
+          text-align: left;
+        }
+      }
+    }
+    .statusBox{
+      justify-content: flex-end;
+      text-align: right;
+      .p{
+        font-size: 12px;
+        color: #ff853a;
+      }
+    }
+    .cenTime{
+      padding-top: 20px;
+      width: 100%;
+      align-items: center;
+      >.col-8{
+        font-size: 12px;
+        color: rgb(255,90,61);
+      }
+      .row{
+        justify-content: flex-end;
+        .q-btn{
+          width: 70px;
+          height: 30px;
+          font-size: 12px;
+          border: 1px solid #dadada;
+          background: #fff;
+          color: #999!important;
+          min-height: 0;
+          font-weight: 400!important;
+        }
+      }
+    }
+  }
+}
+</style>
+
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
+<q-layout class="animated fadeIn">
+  <q-page-container>
+    <q-page>
+      <q-infinite-scroll ref="listScoll" @load="loadMore" :offset="250" :disable="true">
+        <q-pull-to-refresh @refresh="refresh">
+          <!-- item模块 -->
+          <div class="row item" v-for="dataInfo in listInfo" :key="dataInfo.id" @click="startPage(dataInfo)">
+            <div class="row col-12 Box">
+              <!-- 头像 -->
+              <div class="col-3 topImgBox">
+                <img :src="dataInfo.cover">
+              </div>
+              <!-- 提示 简介 -->
+              <div class="col-9 cenTxtBox">
+                <div class="row">
+                  <div class="col-12 cenTit ellipsis">{{dataInfo.title}}</div>
+                </div>
+                <!-- 价格 -->
+                <div class="row cenMoney">
+                  <span class="col-4">{{dataInfo.real_income||0}}元</span>
+                  <!-- 状态 -->
+                  <div class="col-8 statusBox">
+                    <p v-if="dataInfo.isGQ">已过期</p>
+                    <p v-else flat class="col-12 text-primary">待提交</p>
+                  </div>
+                </div>
+              </div>
+              <!-- 时间 -->
+              <div v-if="!dataInfo.isGQ" class="row cenTime">
+                <div class="col-8">
+                  <p>
+                    请在<count-down :end-time="dataInfo.cuntTime"></count-down>内提交审核
+                  </p>
+                </div>
+                <div class="col-4 row">
+                  <q-btn flat color="primary" class="col-12" @click="startPage(dataInfo)">提交</q-btn>
+                </div>
+              </div>
+            </div>
+          </div>
+        <!-- 滚动加 -->
+        </q-pull-to-refresh>
+        <template v-slot:loading>
+          <div class="row justify-center q-my-md">
+            <q-spinner-dots color="primary" size="40px"></q-spinner-dots>
+          </div>
+        </template>
+      </q-infinite-scroll>
+    </q-page>
+  </q-page-container>
+</q-layout>
+<!-- <q-layout>
+  <q-page-container>
+    <q-page>
+      <q-infinite-scroll ref="listScoll" @load="loadMore" :offset="250" :disable="true">
+        <q-pull-to-refresh @refresh="refresh">
+          <div v-for="dataInfo in listInfo" :key="dataInfo.id" class="row magin10 border-line" @click="startPage(dataInfo)">
+            <q-item class="col-9">
+              <q-item-section avatar>
+                <q-avatar>
+                  <img :src="dataInfo.cover">
+                </q-avatar>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label>{{dataInfo.title}}</q-item-label>
+                <p v-if="dataInfo.isGQ">已过期</p>
+                <div v-else class="text-primary">
+                  请在<count-down :end-time="dataInfo.cuntTime"></count-down>内提交审核</div>
+              </q-item-section>
+            </q-item>
+            <div class="col-3" style="text-align: center">
+              <p class="col-12 text-primary">{{dataInfo.real_income||0}}元</p>
+              <q-btn class="col-12 bg-primary text-white btn-right-c" @click="startPage(dataInfo)">去提交</q-btn>
+            </div>
+          </div>
+        </q-pull-to-refresh>
+        <template v-slot:loading>
+          <div class="row justify-center q-my-md">
+            <q-spinner-dots color="primary" size="40px"></q-spinner-dots>
+          </div>
+        </template>
+      </q-infinite-scroll>
+      <q-page-scroller position="bottom-right" :scroll-offset="250" :offset="[18, 18]">
+        <q-btn fab icon="keyboard_arrow_up" color="info"></q-btn>
+      </q-page-scroller>
+    </q-page>
+  </q-page-container>
+</q-layout> -->
+</template>
+
+<script>
+import CountDown from '../../../../../components/CountDown'
+export default {
+  components: { CountDown },
+  name: 'index',
+  data () {
+    return {
+      tab: '1',
+      listInfo: [],
+      model: '',
+      loadings: false,
+      status: '0'
+    }
+  },
+  created () {
+    this.getData()
+  },
+  methods: {
+    startPage (data) {
+      this.$router.push({ path: '/taskdetailmini', query: { data: data, tid: data.task_id } })
+    },
+    getData () {
+      this.loadings = true
+      this.$http.usertask({ type: 2, status: this.status }, data => {
+        this.loadings = false
+        if (data.code === 0 && data.data.length > 0) {
+          this.listInfo = data.data
+          this.$refs.listScoll.resume()
+          this.formatTime()
+        } else {
+
+        }
+      }).catch(e => {
+      })
+    },
+    loadMore (index, done) {
+      if (this.listInfo.length === 0) {
+        this.$refs.listScoll.reset()
+        done(true)
+        return
+      }
+      index = index + 1
+      this.$http.usertask({ type: 2, page: index, status: this.status }, data => {
+        if (data.code === 0 && data.data.length > 0) {
+          this.listInfo = this.listInfo.concat(data.data)
+          this.formatTime()
+          done(false)
+        } else {
+          done(true)
+        }
+      }).catch(e => {
+        done(true)
+      })
+    },
+    refresh (done) {
+      this.loadings = true
+      this.listInfo = []
+      this.$http.usertask({ type: 2, status: this.status }, data => {
+        this.loadings = false
+        if (data.code === 0 && data.data.length > 0) {
+          this.listInfo = data.data
+          this.formatTime()
+        } else {
+
+        }
+        done(true)
+      }).catch(e => {
+      })
+    },
+    formatTime () {
+      for (let i = 0; i <= this.listInfo.length; i++) {
+        if (this.listInfo[i].status === 0) {
+          let date = new Date(this.listInfo[i].create_time * 1000)
+          if (this.listInfo[i].create_time + this.listInfo[i].after_time * 60 * 60 < this.listInfo[i].nowtime) {
+            this.$set(this.listInfo[i], 'isGQ', true)
+          }
+          let fo = [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(i => i < 10 ? `0${i}` : i).join('-') + ' ' + [date.getHours() + this.listInfo[i].after_time, date.getMinutes(), '0'].map(i => i < 10 ? `0${i}` : i).join(':')
+          this.$set(this.listInfo[i], 'cuntTime', fo)
+        }
+      }
+    }
+  }
+}
+</script>

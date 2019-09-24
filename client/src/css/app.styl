@@ -1,0 +1,128 @@
+// app global css
+*{
+  user-select:none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+}
+body{
+  min-height:100vh;
+  -webkit-font-smoothing: unset!important;
+  font-weight: normal!important;
+  font-family: "Microsoft YaHei","微软雅黑","Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB",Arial,sans-serif!important;
+  line-height: 1!important;
+}
+.q-header, .q-footer{
+  z-index: 100
+}
+#q-app,body{
+  background: #fff;
+  height:auto;
+}
+.q-btn{
+  line-height: 1!important;
+}
+// 单行省略
+.text-ellipsis{
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+// 动画时间
+.animated{
+  animation-duration: .5s!important;  
+}
+// 分割线
+.line{
+  height: 5px;
+  background: #f0f0f0;
+  width: 100%;
+}
+// 光标颜色
+.q-input{
+  caret-color: #ff853a;
+}
+// 1px边框
+.btBorder::after{
+  content: '';
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-bottom: 1px solid rgba(188,188,188,.5)!important;
+  transform: scaleY(0.5)!important;
+}
+.topBorder::before{
+  content: '';
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-top: 1px solid rgba(188,188,188,.5)!important;
+  transform: scaleY(0.5)!important;
+}
+.leBorder::before{
+  content: '';
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  border-left: 1px solid rgba(188,188,188,.5)!important;
+  transform: scaleX(0.5)!important;
+}
+.riBorder::after{
+  content: '';
+  height: 100%;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  border-left: 1px solid rgba(188,188,188,.5)!important;
+  transform: scaleX(0.5)!important;
+}
+// 边框结束
+a[type="button"] {
+  -webkit-appearance: initial!important;
+}
+.q-menu.scroll[tabindex="-1"]{
+  overflow:visible
+}
+.ivu-message{
+  z-index:9000!important;
+}
+// 取消点击波纹
+.q-focus-helper{
+  display:none;
+}
+button.q-btn::before,.q-btn::after{
+  box-shadow: none!important;
+}
+.q-ripple{
+  display: none!important;
+}
+// Task>New>index 轮播指示器
+.q-carousel .material-icons.q-icon{
+  font-size: 1.3em!important;
+}
+.q-carousel .q-btn--round{
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+  width: 2em;
+  height 2em;
+}
+.q-layout{
+  min-height: 0!important;
+}
+// iview的hover
+.ivu-cell:hover {
+  background: none!important;
+}
+// 返回顶部
+  .toTop{
+    width:30px;
+    height:30px;
+    min-width: auto;
+    min-height:auto;
+    border-radius: 2px;
+    box-shadow: none;
+  }
