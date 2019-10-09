@@ -129,11 +129,12 @@
     <iframe :src="task.link" class="c-iframe" :class="{xxx: isMe,yyy: !userTask}"></iframe>
     <!-- 底部  按钮 -->
     <div class="row c-booter" v-if="!isMe">
-      <q-btn color="primary" unelevated rounded outline class="col-3 c-btn c-btnGz" @click="businfo()">关注</q-btn>
+      <q-btn v-if="fans" color="primary" unelevated rounded outline class="col-3 c-btn c-btnGz" @click="businfo()">已关注</q-btn>
+      <q-btn v-else color="primary" unelevated rounded outline class="col-3 c-btn c-btnGz" @click="businfo()">关注</q-btn>
       <q-btn unelevated rounded outline class="col-8 c-btn c-btnFx c-btnOff" v-if="task.status>=3">已完成</q-btn>
       <q-btn unelevated rounded outline class="col-8 c-btn c-btnFx" v-else-if="task.status===2&&userTask" @click="receive()">重新分享</q-btn>
       <q-btn unelevated rounded outline class="col-8 c-btn c-btnFx" v-else-if="task.status===2" @click="receive()">领取任务<span v-if="task.isfree===0">赚{{task.max_income}}元</span></q-btn>
-<!--      <q-btn unelevated rounded outline class="col-8 c-btn c-btnFx c-btnOff" v-if="task.status==3">已抢光</q-btn>-->
+<!--  <q-btn unelevated rounded outline class="col-8 c-btn c-btnFx c-btnOff" v-if="task.status==3">已抢光</q-btn>-->
     </div>
     <!-- 说明弹出框 -->
     <q-dialog v-model="persistent" persistent transition-show="scale" transition-hide="scale">
@@ -152,13 +153,16 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <coupon-select ref="coupon" v-model="showCoupon" @onBack="onResult" @onRequest="hasCoupon"></coupon-select>
   </q-layout>
 </template>
 
 <script>
+import CouponSelect from 'app/src/components/coupon-select'
 export default {
   name: 'taskdetail',
   inject: ['setTitle', 'registerRightComponent'],
+  components: { CouponSelect },
   mounted: function () {
     this.setTitle('任务详情')
     this.registerRightComponent(h => h('q-btn', {
@@ -172,21 +176,23 @@ export default {
         }
       }
     }, '任务说明'))
-    this.$http.post('app/PromotionTask/buypoint', { type: 'get', name: 'llfxgg' }, (res) => {
+    this.$http.post('app/PromotionTask/buypoint', { type: 'get', name: 'llfxgg', id: this.$route.query.tid }, (res) => {
       var time = res.data
-      var t
-      clearTimeout(t)
-      t = setTimeout(() => {
-        this.$http.post('app/PromotionTask/buypoint', { type: 'query', name: 'llfxgg', id: this.$route.query.tid }, (res) => {
-          if (res.code === 0) {
-            this.$q.notify({
-              position: 'center',
-              message: '浏览分享广告奖励金币',
-              type: 'success'
-            })
-          }
-        })
-      }, time * 1000)
+      if (time === 'not') {
+        return false
+      } else {
+        var t
+        clearTimeout(t)
+        t = setTimeout(() => {
+          this.$http.post('app/PromotionTask/buypoint', { type: 'query', name: 'llfxgg', id: this.$route.query.tid }, (res) => {
+            if (res.code === 0) {
+              this.$toast.success({
+                message: '浏览分享广告奖励金币'
+              })
+            }
+          })
+        }, time * 1000)
+      }
     })
   },
   data () {
@@ -194,8 +200,11 @@ export default {
       userInfo: '',
       userTask: '',
       task: '',
+      fans: '',
       persistent: false,
-      isMe: false
+      isMe: false,
+      showCoupon: false,
+      isHasCoupon: true
     }
   },
   created () {
@@ -208,32 +217,22 @@ export default {
       this.$http.usertask({ tid: tid }, data => {
         if (data.code === 0 && data.data !== null) {
           this.task = data.data.task
+          this.fans = data.data.fans
           this.userTask = data.data.usertask
           this.isMe = this.userInfo.id === this.task.uid
           if (data.msg) {
             this.$toast.success(data.msg)
           }
-        } else {
-
         }
       }).catch(e => {
       })
     },
     receive () {
-      this.$http.receive({ tid: this.task.id }, data => {
-        if (data.code === 0 && data.data !== null) {
-          if (data.msg) {
-            this.$toast.success(data.msg)
-          } else {
-            this.$set(this.task, 'url', data.data)
-            this.taskDetail(this.tid)
-            this.share(this.task)
-          }
-        } else {
-
-        }
-      }).catch(e => {
-      })
+      if (this.isHasCoupon && !this.userTask) {
+        this.showCoupon = true
+      } else {
+        this.onResult()
+      }
     },
     share (task) {
       this.$share(task.title, task.context, task.cover, task.url, task.pub_platform).then(data => {
@@ -243,7 +242,30 @@ export default {
       })
     },
     businfo () {
-      this.$router.push({ path: '/businessaccount/detail', query: { id: this.task.uid } })
+      this.$router.push({ path: '/businessaccount/detailtask', query: { id: this.task.uid } })
+    },
+    onResult (value) {
+      let pid = 0
+      if (value) {
+        pid = value.coupon_id
+      }
+      this.$http.receive({ tid: this.task.id, coupon_id: pid }, data => {
+        if (data.code === 0 && data.data !== null) {
+          if (data.msg) {
+            this.$toast.success(data.msg)
+          } else {
+            this.$toast.success('领取成功')
+            this.$set(this.task, 'url', data.data)
+            this.taskDetail(this.tid)
+            this.share(this.task)
+            this.$refs.coupon.getData()
+          }
+        }
+      }).catch(e => {
+      })
+    },
+    hasCoupon (value) {
+      this.isHasCoupon = value.isHas
     }
   }
 }

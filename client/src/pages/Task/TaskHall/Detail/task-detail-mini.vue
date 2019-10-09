@@ -157,11 +157,16 @@
     </div>
     <!-- 按钮 -->
     <div class="row c-booter topBorder" v-if="$store.state.user.info.id !== task.uid">
-      <q-btn color="primary" unelevated rounded outline class="col-3 c-btn c-btnGz" @click="businfo()">关注</q-btn>
+      <q-btn v-if="fans" color="primary" unelevated rounded outline class="col-3 c-btn c-btnGz" @click="businfo()">已关注</q-btn>
+      <q-btn v-else color="primary" unelevated rounded outline class="col-3 c-btn c-btnGz" @click="businfo()">关注</q-btn>
       <q-btn unelevated rounded outline class="col-8 c-btn c-btnFx" v-if="!userTask" @click="receive()">领取任务<span v-if="task.isfree===0">赚{{task.uv_income}}元</span></q-btn>
       <div v-else-if="task.status===2" class="col-8">
-        <q-btn unelevated rounded outline class="c-btn c-btnFx" v-if="userTask.status===0" @click="receive()">重新分享<count-down :end-time="endTime"></count-down>后提交任务</q-btn>
-        <q-btn unelevated rounded outline class="c-btn c-btnFx" v-if="userTask.status===-1" @click="submitTask()">提交任务截图<count-down :end-time="endTime"></count-down>前上传截图</q-btn>
+        <div style="display: flex;justify-content: center;align-items: center; border-radius: 0.74rem" class="row c-btn c-btnFx" v-if="userTask.status===0" @click="receive()">
+          <div class="col-12">重新分享</div>
+          <div class="col-12"><count-down :end-time="endTime" after></count-down>提交任务</div>
+        </div>
+        <q-btn unelevated rounded outline class="c-btn c-btnFx" v-if="userTask.status===-1" @click="submitTask()">
+          <count-down :end-time="endTime" before></count-down>提交任务截图</q-btn>
         <q-btn unelevated rounded outline class="c-btn c-btnFx" v-if="userTask.status===1" @click="submitTask()">重新上传截图</q-btn>
         <q-btn unelevated rounded outline class="c-btn c-btnFx c-btnOff" v-if="userTask.status===2">已完成</q-btn>
         <q-btn unelevated rounded outline class="c-btn c-btnFx" v-if="userTask.status===3" @click="seeDetail()">查看审核详情</q-btn>
@@ -179,42 +184,52 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
+    <coupon-select v-model="showCoupon" @onBack="onResult" @onRequest="hasCoupon"></coupon-select>
   </q-layout>
 </template>
 
 <script>
 import CountDown from '../../../../components/CountDown'
+import CouponSelect from 'app/src/components/coupon-select'
 import Vue from 'vue'
 import VueClipboard from 'vue-clipboard2'
 Vue.use(VueClipboard)
 export default {
   name: 'taskdetail',
   inject: ['setTitle'],
-  components: { CountDown },
+  components: { CountDown, CouponSelect },
   mounted () {
     this.setTitle('任务详情')
-    this.$http.post('app/PromotionTask/buypoint', { type: 'get', name: 'ckxrw' }, (res) => {
+    this.$http.post('app/PromotionTask/buypoint', { type: 'get', name: 'ckxrw', id: this.$route.query.tid }, (res) => {
       var time = res.data
-      var t
-      clearTimeout(t)
-      t = setTimeout(() => {
-        this.$http.post('app/PromotionTask/buypoint', { type: 'query', name: 'ckxrw', id: this.$route.query.tid }, (res) => {
-          if (res.code === 0) {
-            this.$toast.success({
-              message: '浏览小任务奖励金币'
-            })
-          }
-        })
-      }, time * 1000)
+      if (time === 'not') {
+        return false
+      } else {
+        var t
+        clearTimeout(t)
+        t = setTimeout(() => {
+          this.$http.post('app/PromotionTask/buypoint', { type: 'query', name: 'ckxrw', id: this.$route.query.tid }, (res) => {
+            if (res.code === 0) {
+              this.$toast.success({
+                message: '浏览小任务奖励金币'
+              })
+            }
+          })
+        }, time * 1000)
+      }
     })
   },
   data () {
     return {
       userTask: '',
       task: '',
+      fans: '',
       tid: '',
       persistent: false,
-      endTime: ''
+      showCoupon: false,
+      isHasCoupon: true,
+      endTime: '',
+      saveImgList: ''
     }
   },
   created () {
@@ -223,27 +238,21 @@ export default {
   },
   methods: {
     businfo () {
-      this.$toast.fail('事件没绑')
+      this.$router.push({ path: '/businessaccount/detailtask', query: { id: this.task.uid } })
     },
     receiveTask () {
-      this.$copyText(this.task.title).then((e) => {
-        console.log('复制成功')
-      }, (e) => {
-        console.log('复制失败')
-      })
-      this.$http.receive({ tid: this.task.id }, data => {
-        if ((data.code === 0 && data.data !== null) || data.error_code === 3130) {
-          this.$toast.success('任务领取成功，分享语已复制，图片已保存到相册')
-          this.persistent = false
-          this.$router.back()
-        }
-      }).catch(e => {
-      })
+      if (this.isHasCoupon && !this.userTask) {
+        this.showCoupon = true
+      } else {
+        this.onResult()
+      }
     },
     taskDetail (tid) {
       this.$http.usertask({ tid: tid }, data => {
         if (data.code === 0 && data.data !== null) {
           this.task = data.data.task
+          this.fans = data.data.fans
+          this.saveImgList = data.data.task.images
           this.task.images = JSON.parse(this.task.images)
           if (data.data.usertask) {
             this.userTask = data.data.usertask
@@ -281,6 +290,32 @@ export default {
       }
       let date = new Date(time * 1000)
       this.endTime = [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(i => i < 10 ? `0${i}` : i).join('-') + ' ' + [date.getHours(), date.getMinutes()].map(i => i < 10 ? `0${i}` : i).join(':')
+    },
+    onResult (value) {
+      let pid = 0
+      if (value) {
+        pid = value.coupon_id
+      }
+      this.$copyText(this.task.title).then((e) => {
+        console.log('复制成功')
+      }, (e) => {
+        console.log('复制失败')
+      })
+      this.$http.receive({ tid: this.task.id, coupon_id: pid }, data => {
+        if ((data.code === 0 && data.data !== null) || data.error_code === 3130) {
+          this.$toast.success('任务领取成功，分享语已复制，图片已保存到相册')
+          this.persistent = false
+          // this.$router.back()
+          console.log(this.saveImgList)
+          this.$saveImg(this.task.title, this.task.pub_platform, this.saveImgList)
+          this.taskDetail(this.tid)
+        }
+      }).catch(e => {
+      })
+    },
+    hasCoupon (value) {
+      console.log(value.isHas)
+      this.isHasCoupon = value.isHas
     }
   }
 }

@@ -51,7 +51,7 @@
     <!-- title -->
     <div class="row itemBox" @click="to">
       <div class="col-3">
-        <img src="https://icweiliimg6.pstatp.com/weili/sm/519149378786689034.webp"/>
+        <img :src="info.cover_url"/>
       </div>
       <div class="col-9">
         <p>{{ info.name }}</p>
@@ -111,7 +111,7 @@ export default {
             }
           })
         } else {
-          this.$toast.fail('支付失败')
+          this.$toast.fail(res.msg)
         }
         this.is_loading = false
       })

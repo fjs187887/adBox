@@ -23,7 +23,7 @@
     <q-page-container>
       <Affix :offset-top="50">
         <div class="scrollBox">
-          <q-tabs align="justify" indicator-color="transparent" active-color="primary"  narrow-indicator>
+          <q-tabs align="justify" indicator-color="primary" active-color="primary"  narrow-indicator v-model="cate">
             <q-route-tab v-for="cate in categorys"
                          :key="cate.id"
                          :name="cate.name"
@@ -42,6 +42,7 @@ export default {
   data () {
     return {
       page: 1,
+      cate: '',
       categorys: []
     }
   },
@@ -49,6 +50,7 @@ export default {
     this.$http.getHotCategory(({ errcode, data, message }) => {
       if (errcode === 0) {
         this.categorys = data
+        this.cate = data[0].id
       }
     })
   }

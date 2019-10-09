@@ -415,7 +415,7 @@
         </router-link>
       </div>
       <div class="contentBox">
-        <router-link to="/user/hot-text/index">
+        <router-link to="/taskmain">
           <p><img src="statics/user/6.png" alt=""></p>
           <p>热文推</p>
         </router-link>
@@ -441,9 +441,9 @@
       <!-- <Cell class="contentTd" title="成为服务商" to="/user/register/servicer" /> -->
 <!--      <Cell class="contentTd btBorder" title="热文推" to="/textrecommend/text-hot" />-->
       <Cell class="contentTd btBorder" title="任务中心" to="/taskcenter" />
-      <Cell class="contentTd btBorder" title="新手指南" to="/user/guide" />
+      <Cell class="contentTd btBorder" title="新手指南" to="/Goldmall/guide" />
       <Cell class="contentTd btBorder" title="意见反馈" to="/service" />
-      <Cell class="contentTd btBorder" extra="40000-20000" title="客服中心" @click="callPhone()"></Cell>
+      <Cell class="contentTd btBorder" extra="40000-20000" title="客服中心" @click.native="callPhone()"></Cell>
     </cell-group>
   </div>
 </div>
@@ -491,32 +491,34 @@ export default {
       }
     },
     callPhone () {
-      this.$q.dialog({
-        title: '确认拨打',
-        message: '40000-20000',
-        ok: '拨打',
-        cancel: true,
-        persistent: true,
-        class: 'call'
-      }).onOk(() => {
-        console.log('>>>> OK')
-      }).onOk(() => {
-        console.log('>>>> second OK catcher')
-      }).onCancel(() => {
-        console.log('>>>> Cancel')
-      }).onDismiss(() => {
-      })
+      console.log('打电话')
+      window.location.href = 'tel://40000-20000'
+      // this.$q.dialog({
+      //   title: '确认拨打',
+      //   message: '40000-20000',
+      //   ok: '拨打',
+      //   cancel: true,
+      //   persistent: true,
+      //   class: 'call'
+      // }).onOk(() => {
+      //   console.log('>>>> OK')
+      // }).onOk(() => {
+      //   console.log('>>>> second OK catcher')
+      // }).onCancel(() => {
+      //   console.log('>>>> Cancel')
+      // }).onDismiss(() => {
+      // })
     },
     shoppingcart () {
       this.$http.post('app/UserAuthentication/check_isauth', (res) => {
         if (res.code === 0) {
-          if (res.data) {
-            if (res.data.audit_status === 2) {
+          if (res.data.data) {
+            if (res.data.data.audit_status === 2) {
               this.$router.push({ path: '/Shoppingcart/detail', query: { data: this.$store.state.user.info } })
-            } else if (res.data.audit_status === 0) {
-              this.$toast.fail('认证正在审核中')
-            } else if (res.data.audit_status === 1) {
-              this.$toast.fail('认证审核不通过')
+            } else if (res.data.data.audit_status === 0) {
+              this.$toast.fail('正在审核中')
+            } else if (res.data.data.audit_status === 1) {
+              this.$toast.fail('审核不通过')
             }
           } else {
             this.$toast.fail('请先进行认证')

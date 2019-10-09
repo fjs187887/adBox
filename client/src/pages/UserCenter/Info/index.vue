@@ -94,7 +94,7 @@
               name='image'
               multiple
               type="drag"
-              :action="baseUrl+ 'app/task/upload'"
+              :action="baseUrl+ 'app/user/avatarUpload'"
               :headers="$store.getters.token"
             >
               <img :src="info.avatar || 'statics/user/avatar.png'" :alt="info.nickname">
@@ -105,12 +105,12 @@
 <!-- 昵称 -->
       <div class="btBorder">
         <van-cell-group class="infoBorder">
-          <van-field @blur="onBlur" :value="info.nickname" label="昵称" />
+          <van-field @blur="onBlured(1)" v-model="info.nickname" label="昵称" />
         </van-cell-group>
       </div>
       <van-cell-group>
         <span>我的二维码</span>
-        <router-link to="/usercode" class="imgBox">
+        <router-link to="/Invit/qrcode" class="imgBox">
           <q-btn class="ewm" flat dense>
             <img src="statics/user/ewm.png" alt="">
           </q-btn>
@@ -122,18 +122,28 @@
       <p class="sideTxt">其他信息</p>
       <div class="btBorder">
         <van-cell-group class="infoBorder">
-          <van-field :value="sexOptions[info.sex]? sexOptions[info.sex].label:''" label="性别" disabled />
+          <van-field  @click="showsexOptions = true" v-if="info.sex==1" value="男" label="性别" />
+          <van-field  @click="showsexOptions = true" v-else-if="info.sex==2" value="女" label="性别" />
+          <van-field  @click="showsexOptions = true" v-else value="未填写" label="性别" />
+          <van-popup v-model="showsexOptions" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="sexOpt"
+              @cancel="showsexOptions = false"
+              @confirm="onCon"
+            />
+          </van-popup>
         </van-cell-group>
       </div>
       <div class="btBorder">
         <van-cell-group>
-          <van-field :value="info.birthday" label="生日" disabled />
+          <van-field  @blur="onBlured(3)" v-model="info.age" label="年龄" />
         </van-cell-group>
       </div>
 <!-- 学历 -->
       <div class="btBorder">
         <van-cell-group class="infoBorder">
-          <van-field @click="showPicker = true" label="学历" :value="value" />
+          <van-field @click="showPicker = true" label="学历" :value="info.education" />
           <van-popup v-model="showPicker" position="bottom">
             <van-picker
               show-toolbar
@@ -146,7 +156,7 @@
       </div>
       <div class="btBorder">
         <van-cell-group class="infoBorder">
-          <van-field @blur="onBlur" label="职业" :value="info.profession"/>
+          <van-field label="职业" @blur="onBlured(2)" v-model="info.profession"/>
         </van-cell-group>
       </div>
       <div class="btBorder">
@@ -157,146 +167,35 @@
 <!-- 居住地 -->
       <div class="btBorder">
         <van-cell-group class="infoBorder">
-          <van-field @click="showJzd = true" label="现居住地" :value="jzd" />
-          <van-popup v-model="showJzd" position="bottom">
-            <van-area :area-list="areaList"
-                      @cancel="showJzd = false"
-                      @confirm="onJzd"
-                      value="110101" />
-          </van-popup>
+          <van-field @click="showDialog = true" label="现居住地" :value="info.reside|toCityName" />
+          <areas-select v-model="showDialog" @onBack="onResult"></areas-select>
         </van-cell-group>
       </div>
     </div>
-    <!-- 基本 -->
-    <!-- <q-list>
-      <q-item-label class="headTxt" header>基本信息</q-item-label>
-      <q-item class="btBorder avatatBox pt10">
-        <q-item-section class="sideTit" side>头像</q-item-section>
-        <q-item-section class="textBox">
-          <q-avatar :src="info.avatar">
-            <Upload
-              class="upload"
-              ref="upload"
-              :show-upload-list="false"
-              :on-success="handleSuccess"
-              :format="['jpg','jpeg','png']"
-              :max-size="1024*10"
-              :on-format-error="handleFormatError"
-              :on-exceeded-size="handleMaxSize"
-              name='image'
-              multiple
-              type="drag"
-              :action="baseUrl+ 'app/task/upload'"
-              :headers="$store.getters.token"
-            >
-              <img :src="info.avatar || 'statics/user/avatar.png'" :alt="info.nickname">
-            </Upload>
-          </q-avatar>
-        </q-item-section>
-      </q-item>
-      <q-item class="btBorder">
-        <q-item-section class="sideTit" side>昵称</q-item-section>
-        <q-item-section class="textBox" v-if="editMode"><q-input v-model="einfo.nickname" dense></q-input></q-item-section>
-        <q-item-section class="textBox" v-else>{{info.nickname}}</q-item-section>
-      </q-item>
-      <q-item class="">
-        <q-item-section class="sideTit" side>我的二维码</q-item-section>
-        <q-item-section class="textBox">
-          <router-link to="/usercode" class="q-field">
-            <q-btn class="ewm" flat dense>
-              <img src="statics/user/ewm.png" alt="">
-            </q-btn>
-          </router-link>
-        </q-item-section>
-      </q-item>
-    </q-list> -->
-    <!-- 线 -->
-    <!-- <div class="line"></div> -->
-    <!-- 其他 -->
-    <q-list separator>
-      <q-item-label class="headTxt" header>其他信息</q-item-label>
-      <!-- <q-item>
-        <q-item-section class="sideTit" side>性别</q-item-section>
-        <q-item-section class="textBox">{{sexOptions[info.sex]? sexOptions[info.sex].label:''}}</q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section class="sideTit" side>生日</q-item-section>
-        <q-item-section class="textBox">{{info.birthday}}</q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section class="sideTit" side>学历</q-item-section>
-        <q-item-section class="textBox" v-if="editMode">
-          <q-select borderless dense
-                    v-model="einfo.education"
-                    :options="educationOptions"></q-select>
-        </q-item-section>
-        <q-item-section class="textBox" v-else>{{info.education}}</q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section class="sideTit" side>职业</q-item-section>
-        <q-item-section class="textBox" v-if="editMode"><q-input v-model="einfo.profession" dense/></q-item-section>
-        <q-item-section class="textBox" v-else>{{info.profession}}</q-item-section>
-      </q-item>
-      <q-item>
-        <q-item-section class="sideTit" side>家乡</q-item-section>
-        <q-item-section class="textBox">{{info.hometown|toCityName}}</q-item-section>
-      </q-item> -->
-      <q-item>
-        <q-item-section class="sideTit" side>现居住地</q-item-section>
-        <q-item-section class="textBox" v-if="editMode">
-          <city-selector v-model="einfo.reside" dense borderless></city-selector>
-        </q-item-section>
-        <q-item-section class="textBox" v-else>{{info.reside|toCityName}}</q-item-section>
-      </q-item>
-    </q-list>
   </div>
 </template>
 <script>
-import deepcopy from 'deepcopy'
 import { mapState, mapActions } from 'vuex'
-import citySelector from 'app/src/components/city-selector'
+import areasSelect from 'app/src/components/areas-select/index'
 import { API_HOST } from '../../../boot/axios/config'
 
 export default {
-  components: { citySelector },
-  inject: ['setTitle', 'registerLeftComponent', 'registerRightComponent'],
+  components: { areasSelect },
+  inject: ['setTitle', 'registerLeftComponent'],
   data () {
     return {
       title: '个人信息',
-      value: '', // 学历value
-      jzd: '', // 居住地value
-      showJzd: false, // 居住地弹框
+      showDialog: false, // 居住地弹框
       showPicker: false, // 学历弹框
+      showsexOptions: false, // 性别
       authInfo: {},
       baseInfo: {},
       editMode: false,
       einfo: {},
       sexOptions: [{ label: '未填写', value: 0 }, { label: '男', value: 1 }, { label: '女', value: 2 }],
+      sexOpt: ['男', '女'],
       educationOptions: ['初中及以下', '中专/中技/高中', '专科', '本科', '硕士', '博士'],
-      baseUrl: API_HOST.http,
-      areaList: {// 居住地 假的
-        province_list: {
-          110000: '北京市',
-          120000: '天津市'
-        },
-        city_list: {
-          110100: '北京市',
-          110200: '县',
-          120100: '天津市',
-          120200: '县'
-        },
-        county_list: {
-          110101: '东城区',
-          110102: '西城区',
-          110105: '朝阳区',
-          110106: '丰台区',
-          120101: '和平区',
-          120102: '河东区',
-          120103: '河西区',
-          120104: '南开区',
-          120105: '河北区'
-        }
-      }
+      baseUrl: API_HOST.http
     }
   },
   computed: mapState({
@@ -310,52 +209,48 @@ export default {
       if (this.editMode) this.editMode = false
       else this.$router.back()
     })
-    this.registerRightComponent(h => h('q-btn', {
-      props: {
-        flat: true,
-        dense: true,
-        rounded: true
-      },
-      on: { click: this._switchMode }
-    }, this.editMode ? '完成' : '编辑'))
   },
   methods: {
-    onBlur () {
     // 昵称 职业 失焦
-      this._updateUserInfo()
+    onBlured (type) {
+      if (type === 1) {
+        this.upInfo({ nickname: this.info.nickname })
+      } else if (type === 2) {
+        this.upInfo({ profession: this.info.profession })
+      } else {
+        this.upInfo({ age: this.info.age })
+      }
     },
     // 学历点击完成
     onConfirm (value) {
-      this.value = value
       this.showPicker = false
+      this.upInfo({ education: value })
+    },
+    onCon (value) {
+      this.showsexOptions = false
+      if (value === '男') {
+        this.info.sex = 1
+      } else if (value === '女') {
+        this.info.sex = 2
+      }
+      this.upInfo({ sex: this.info.sex })
     },
     // 居住地点击完成
-    onJzd (val) {
-      this.jzd = ''
-      for (var i in val) {
-        if (!val.hasOwnProperty(i)) continue
-        this.jzd += val[i].name
-      }
-      this.showJzd = false
+    onResult (value) {
+      this.upInfo({ reside: value.id })
     },
     ...mapActions(['updateUserInfo']),
-    _updateUserInfo () {
-      let _data
-      let _fields = ['nickname', 'education', 'profession', 'reside']
-      // let _fields = ['nickname', 'sex', 'birthday', 'education', 'profession', 'hometown', 'reside']
-      _data = Object.assign({}, ..._fields.map(name => ({ [name]: this.einfo[name] })))
-      this.$http.userUpdateInfo(_data, ({ errcode, data, message }) => {
-        if (errcode === 0) this.updateUserInfo(_data)
-        else this.$toast.fail(message || '更新失败')
+    upInfo (objData) {
+      // let _fields = ['nickname', 'education', 'profession', 'reside']
+      // _data = Object.assign({}, ..._fields.map(name => ({ [name]: this.einfo[name] })))
+      this.$http.userUpdateInfo(objData, ({ errcode, data, message }) => {
+        console.log(objData)
+        if (errcode === 0) this.updateUserInfo(objData)
+        else this.$toast.fail('更新失败')
       }).catch(e => console.error(e))
     },
-    _switchMode () {
-      if (this.editMode) {
-        this._updateUserInfo()
-      } else this.einfo = deepcopy(this.info)
-      this.editMode = !this.ed·itMode
-    },
     handleSuccess (res, file) {
+      this.upInfo({ avatar: res.data })
       this.authInfo.avatar = res.data
     },
     handleFormatError (file) {

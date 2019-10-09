@@ -1,7 +1,13 @@
 import Vue from 'vue'
-import deepEach from '../boot/functions/deep-each.js'
+import TimeStamp from 'time-stamp'
+import { API_HOST } from './axios/config'
 import CityCodes from '../assets/jsons/city.json'
+import deepEach from '../boot/functions/deep-each.js'
 export default async () => {
+  Vue.filter('toSource', function (src) {
+    if (/^((https?|ftp):)?\/\//.test(src)) return src
+    return API_HOST.http + src
+  })
   Vue.filter('toCityName', function (code, deepShow = true, defaultText = '') {
     if (isNaN(code)) return defaultText
     let name = []
@@ -13,5 +19,12 @@ export default async () => {
       }
     })
     return name.join('-')
+  })
+  Vue.filter('toTime', function (timeStamp, format = 'YYYY-MM-DD HH:mm:ss') {
+    if (timeStamp instanceof Date) {
+      return TimeStamp.utc(format, timeStamp)
+    } else {
+      return TimeStamp.utc(format, new Date(timeStamp * 1000))
+    }
   })
 }

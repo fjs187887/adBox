@@ -134,11 +134,12 @@
         </li>
       </ul>
       <!-- ？？？？ -->
-      <div class="bindWx btBorder topBorder">
-        <img class="imgWx" src="statics/money/wx.png" alt="">
-        <span>去微信绑定账户</span>
-        <img class="imgArrow" src="statics/money/arrow.png" alt="">
-      </div>
+<!--      <div class="bindWx btBorder topBorder">-->
+<!--        <img class="imgWx" src="statics/money/wx.png" alt="">-->
+<!--        <span>去微信绑定账户</span>-->
+<!--        <img class="imgArrow" src="statics/money/arrow.png" alt="">-->
+<!--      </div>-->
+      <q-input class="btBorder" v-model="bank_num" v-if="isbank" label="银行卡号：" type="number" placeholder="请输入银行卡号" :rules="[val => !!val || '请输入银行卡号']"/>
     </div>
     <div class="cenBox">
       <p>提现金额</p>
@@ -166,7 +167,7 @@
       </ul>
     </div>
     <div class="bottomBox topBorder">
-      <q-btn rounded @click="toPay()">立即提现</q-btn>
+      <q-btn rounded @click="toPay()" :loading="loading">立即提现</q-btn>
     </div>
   </q-layout>
 </template>
@@ -181,7 +182,10 @@ export default {
     return {
       dataInfo: '',
       payType: 0,
-      limitType: 0
+      limitType: 0,
+      bank_num: '',
+      loading: false,
+      isbank: false
     }
   },
   created () {
@@ -198,11 +202,18 @@ export default {
       })
     },
     toPay () {
-      this.$http.post('app/Wallet/index', (res) => {
+      this.loading = true
+      this.$http.post('app/Withdraw', {
+        paytype: this.payType,
+        limitType: this.limitType,
+        bank_num: this.bank_num
+      }, (res) => {
+        this.loading = false
         if (res.code === 0) {
-          this.dataInfo = res.data
+          this.$toast.success('提交成功')
+          this.getData()
         } else {
-          this.$toast.fail('网络错误')
+          this.$toast.fail(res.msg)
         }
       })
     },
@@ -211,6 +222,11 @@ export default {
     },
     plf_checked (type) {
       this.payType = type
+      if (type === 2) {
+        this.isbank = true
+      } else {
+        this.isbank = false
+      }
     },
     limit_checked (type) {
       this.limitType = type

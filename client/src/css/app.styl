@@ -11,7 +11,7 @@ body{
   font-family: "Microsoft YaHei","微软雅黑","Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB",Arial,sans-serif!important;
   line-height: 1!important;
 }
-.q-header, .q-footer{
+#q-app .q-header,#q-app .q-footer{
   z-index: 100
 }
 #q-app,body{
@@ -21,6 +21,10 @@ body{
 .q-btn{
   line-height: 1!important;
 }
+// vant选择器颜色
+.van-picker__cancel, .van-picker__confirm{
+  color: #ff853a!important;  
+}
 // 单行省略
 .text-ellipsis{
   overflow:hidden;
@@ -29,7 +33,7 @@ body{
 }
 // 动画时间
 .animated{
-  animation-duration: .5s!important;  
+  animation-duration: .5s!important;
 }
 // 分割线
 .line{
@@ -98,6 +102,15 @@ button.q-btn::before,.q-btn::after{
 .q-ripple{
   display: none!important;
 }
+// 消息
+.q-layout__section--marginal{
+  background: #fff;
+  color: #333;
+  font-weight: 400;
+}
+.q-toolbar__title{
+  font-size: 16px;
+}
 // Task>New>index 轮播指示器
 .q-carousel .material-icons.q-icon{
   font-size: 1.3em!important;
@@ -116,6 +129,14 @@ button.q-btn::before,.q-btn::after{
 // iview的hover
 .ivu-cell:hover {
   background: none!important;
+}
+.van-dialog__cancel{
+  font-size: 14px!important;  
+}
+.van-dialog__confirm,
+.van-dialog__confirm:active{
+  font-size: 14px!important;
+  color: #ff853a!important;
 }
 // 返回顶部
   .toTop{

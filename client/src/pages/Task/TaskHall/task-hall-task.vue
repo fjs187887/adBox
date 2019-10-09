@@ -64,52 +64,48 @@
 
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <q-layout view="lHh lpr lFf">
-    <q-page-container>
-      <q-page style="min-height: 0">
-      <Affix class="isFixed" :offset-top="45">
-        <div class="scrollBox">
-          <q-btn-toggle
-            v-model="screen"
-            flat
-            toggle-text-color="primary"
-            toggle-color="primary"
-            :options="sharePlatform"
-            @input="refresh"
-            v-if="show">
-          </q-btn-toggle>
-        </div>
-      </Affix>
-        <q-infinite-scroll class="animated fadeIn" ref="listScoll" @load="loadMore">
-          <q-pull-to-refresh @refresh="refresh">
-            <nodata v-if="nodata"/>
-            <!-- item -->
-            <div class="itemList">
-              <div v-for="dataInfo in listInfo" :key="dataInfo.id" class="row tBox btBorder" @click="startPage(dataInfo)">
-                <div class="col-4 tLeft">
-                  <img :src="dataInfo.cover">
-                </div>
-                <div class="row col-8 tRight">
-                  <p class="tiTle ellipsis">{{dataInfo.title}}</p>
-                  <div class="row col-12 moneyBox">
-                    <p class="col-2 text-primary">￥{{dataInfo.max_income}}</p>
-                    <p class="col-6 label">剩余：{{dataInfo.surplus}}%</p>
-                    <div class="col-4 btnBox">
-                      <q-btn v-if="dataInfo.status==1" class="guang bg-grey text-white" >已抢光</q-btn>
-                      <q-btn v-else class="bg-primary text-white" >分享赚钱</q-btn>
-                    </div>
-                  </div>
+    <Affix class="isFixed" :offset-top="45">
+      <div class="scrollBox">
+        <q-btn-toggle
+          v-model="screen"
+          flat
+          toggle-text-color="primary"
+          toggle-color="primary"
+          :options="sharePlatform"
+          @input="refresh"
+          v-if="show">
+        </q-btn-toggle>
+      </div>
+    </Affix>
+    <q-infinite-scroll class="animated" ref="listScoll" @load="loadMore">
+      <q-pull-to-refresh @refresh="refresh">
+        <nodata v-if="nodata"/>
+        <!-- item -->
+        <div class="itemList">
+          <div v-for="dataInfo in listInfo" :key="dataInfo.id" class="row tBox btBorder" @click="startPage(dataInfo)">
+            <div class="col-4 tLeft">
+              <img :src="dataInfo.cover">
+            </div>
+            <div class="row col-8 tRight">
+              <p class="tiTle ellipsis">{{dataInfo.title}}</p>
+              <div class="row col-12 moneyBox">
+                <p class="col-2 text-primary">￥{{dataInfo.max_income}}</p>
+                <p class="col-6 label">剩余：{{dataInfo.surplus}}%</p>
+                <div class="col-4 btnBox">
+                  <q-btn v-if="dataInfo.status==1" class="guang bg-grey text-white" >已抢光</q-btn>
+                  <q-btn v-else class="bg-primary text-white" >分享赚钱</q-btn>
                 </div>
               </div>
             </div>
-          </q-pull-to-refresh>
-          <template v-slot:loading>
-            <div class="row justify-center q-my-md">
-              <q-spinner-dots color="primary" size="40px"></q-spinner-dots>
-            </div>
-          </template>
-        </q-infinite-scroll>
-      </q-page>
-    </q-page-container>
+          </div>
+        </div>
+      </q-pull-to-refresh>
+      <template v-slot:loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" size="40px"></q-spinner-dots>
+        </div>
+      </template>
+    </q-infinite-scroll>
   </q-layout>
 </template>
 
@@ -162,12 +158,15 @@ export default {
     refresh (done) {
       this.listInfo = []
       this.$http.gettask({ cut: 'share', platform: this.screen }, data => {
-        if (data.code === 0 && data.data.list.length >= 0) {
+        if (data.code === 0 && data.data.list.length > 0) {
           this.listInfo = data.data.list
+          this.nodata = false
           if (this.listInfo.length > 9) {
             this.$refs.listScoll.reset()
             this.$refs.listScoll.resume()
           }
+        } else {
+          this.nodata = true
         }
         done()
       }).catch(e => {

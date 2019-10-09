@@ -112,161 +112,178 @@
   }
 }
 .xieyi{
+  padding-bottom: 70px;
   text-align: center;
   font-size: 12px!important;
   color:#666;
-  padding-top:13px;
   span{
     color: rgb(255,90,61)
   }
+  /deep/.q-radio__label{
+    font-size: 12px;
+  }
 }
-.enterBtn{
-  padding: 10px 15px 30px;
-  .q-btn{
-    width:100%;
-    font-size: 13px;
-    height:40px;
-    box-shadow: none;
+.bottomBox{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  .enterBtn{
+    position: relative;
+    padding: 15px;
+    .q-btn{
+      width:100%;
+      font-size: 13px;
+      height:40px;
+      box-shadow: none;
+    }
   }
 }
 </style>
 
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <q-layout class="animated fadeIn">
-      <q-form class="" ref="contact">
-        <div class="formBox">
-          <div class="item" @click="show(4,listType)">
-            <p class="">任务类型：</p>
-            <span class="">{{contact.typeName}}</span>
-          </div>
-          <q-input v-model="contact.title" label="分享语：" placeholder="请输入分享语" :dense="dense" :rules="ruleData.title"></q-input>
-          <div class="formItem">
-            <p>分享图片：</p>
-            <div class="paddingLeft">
-              <div class="uploadList" v-for="item in uploadList" :key="item.id">
-                <template v-if="item.status === 'finished'">
-                  <img :src="item.url">
-                  <div class="upload-list-cover">
-                    <q-icon name="delete_outline" @click="handleRemove(item)"></q-icon>
-                  </div>
-                </template>
-                <template v-else>
-                  <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
-                </template>
-              </div>
-            <div class="uploadList">
-              <Upload
-                class="upload"
-                ref="upload"
-                :show-upload-list="false"
-                :on-success="handleSuccess"
-                :format="['jpg','jpeg','png']"
-                :max-size="2048*5"
-                :on-format-error="handleFormatError"
-                :on-exceeded-size="handleMaxSize"
-                :before-upload="handleBeforeUpload"
-                name='image'
-                multiple
-                type="drag"
-                :action="baseUrl+ 'app/task/upload'"
-                :headers="$store.getters.token"
-                >
-                <div class="imgAdd">
-                  <q-icon name="add"></q-icon>
+    <q-form class="" ref="contact">
+      <div class="formBox">
+        <div class="item" @click="show(4,listType)">
+          <p class="">任务类型：</p>
+          <span class="">{{contact.typeName}}</span>
+        </div>
+        <q-input v-model="contact.title" label="分享语：" placeholder="请输入分享语" :dense="dense" :rules="ruleData.title"></q-input>
+        <div class="formItem">
+          <p>分享图片：</p>
+          <div class="paddingLeft">
+            <div class="uploadList" v-for="item in uploadList" :key="item.id">
+              <template v-if="item.status === 'finished'">
+                <img :src="item.url">
+                <div class="upload-list-cover">
+                  <q-icon name="delete_outline" @click="handleRemove(item)"></q-icon>
                 </div>
-              </Upload>
+              </template>
+              <template v-else>
+                <Progress v-if="item.showProgress" :percent="item.percentage" hide-info></Progress>
+              </template>
             </div>
-            </div>
+          <div class="uploadList">
+            <Upload
+              class="upload"
+              ref="upload"
+              :show-upload-list="false"
+              :on-success="handleSuccess"
+              :format="['jpg','jpeg','png']"
+              :max-size="2048*5"
+              :on-format-error="handleFormatError"
+              :on-exceeded-size="handleMaxSize"
+              :before-upload="handleBeforeUpload"
+              name='image'
+              multiple
+              type="drag"
+              :action="baseUrl+ 'app/task/upload'"
+              :headers="$store.getters.token"
+              >
+              <div class="imgAdd">
+                <q-icon name="add"></q-icon>
+              </div>
+            </Upload>
+          </div>
           </div>
         </div>
-        <div class="line"></div>
-        <div class="formBox">
-          <div class="item" @click="show(0,listTousers)">
-            <p class="">接收人群：</p>
-            <span class="">{{contact.tousersName}}</span>
-          </div>
-          <div class=" item" @click="show(1,listFans)" v-if="contact.tousers==1">
-            <p class="">粉丝标签：</p>
-            <span class="">{{contact.fansName}}</span>
-          </div>
-          <div class=" item" @click="showDialog = true" v-if="contact.tousers==0">
-            <p class="">分享地域：</p>
-            <span class="">{{contact.pub_area_name}}</span>
-          </div>
-          <div class=" item" @click="show(2,listPlatform)">
-            <p class="">分享平台：</p>
-            <span class="">{{contact.pub_platform_name}}</span>
-          </div>
-          <q-input v-model="contact.start_time" label="任务时间：" :dense="dense" :rules="[ val => val && val.length > 0 || '请选择']">
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-date v-model="contact.start_time" mask="YYYY-MM-DD HH:mm"></q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-            <template v-slot:after>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-time v-model="contact.start_time" mask="YYYY-MM-DD HH:mm" format24h></q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <q-input v-model="contact.end_time"          label="结束时间："   :dense="dense" :rules="[ val => val && val.length > 0 || '请选择']" >
-            <template v-slot:append>
-              <q-icon name="event" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-date v-model="contact.end_time" mask="YYYY-MM-DD HH:mm" ></q-date>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-            <template v-slot:after>
-              <q-icon name="access_time" class="cursor-pointer">
-                <q-popup-proxy transition-show="scale" transition-hide="scale">
-                  <q-time v-model="contact.end_time" mask="YYYY-MM-DD HH:mm" format24h ></q-time>
-                </q-popup-proxy>
-              </q-icon>
-            </template>
-          </q-input>
-          <div class="item" @click="show(3,listFree)" v-if="contact.tousers==1">
-            <p class="">是否付费：</p>
-            <span class="">{{contact.isfreeName}}</span>
-          </div>
-          <div class="marginBottm" v-if="contact.isfree==0||contact.tousers==0">
-            <q-input v-model="contact.uv_income" label="转发单价：" type="number" :dense="dense" :rules="ruleData.uv_income"
-                    @input="operation()">
-              <template v-slot:append><span style="font-size: 12px">0.2元起</span></template>
-            </q-input>
-            <q-input v-model="contact.click_num" label="转发人数：" type="number" :dense="dense" :rules="ruleData.click_num"
-                    @input="operation()">
-              <template v-slot:append><span style="font-size: 12px">100次起</span></template>
-            </q-input>
-            <q-input class="txtRed" color="primary" v-model="contact.budget" label="实付金额：" type="number" :dense="dense" :rules="ruleData.budget"
-                    readonly>
-              <template v-slot:append><span style="font-size: 12px">20元起投放</span></template>
-            </q-input>
-          </div>
-          <div class="item mb0" @click="show(5,listReview)">
-            <p class="">审核方式：</p>
-<!--            <span class="">{{contact.review_platform_name}}</span>-->
-            <span class="">商家审核</span>
-          </div>
-        </div>
-        <div class="line"></div>
-        <div class="txtBox">
-          <h4>任务要求：</h4>
-          <p>{{contact.claim1}}</p>
-          <p>{{contact.claim2}}<input :value="contact.after_time" style="width: 30px;margin: 0 4px;text-align: center">{{contact.claim3}}</p>
-          <p>{{contact.claim4}}<input :value="contact.zan_num" style="width: 30px;margin: 0 4px;text-align: center"/>{{contact.claim5}}</p>
-        </div>
-      </q-form>
-      <div class="xieyi">
-        <q-radio v-model="accept" val="line" label="已阅读并同意 "><span>《任务发布协议》</span></q-radio>
       </div>
-      <div class="bg-transparent enterBtn">
+      <div class="line"></div>
+      <div class="formBox">
+        <div class="item" @click="show(0,listTousers)">
+          <p class="">接收人群：</p>
+          <span class="">{{contact.tousersName}}</span>
+        </div>
+        <div class=" item" @click="show(1,listFans)" v-if="contact.tousers==1">
+          <p class="">粉丝标签：</p>
+          <span class="">{{contact.fansName}}</span>
+        </div>
+        <div class=" item" @click="showDialog = true" v-if="contact.tousers==0">
+          <p class="">分享地域：</p>
+          <span class="">{{contact.pub_area_name}}</span>
+        </div>
+        <div class=" item" @click="show(2,listPlatform)">
+          <p class="">分享平台：</p>
+          <span class="">{{contact.pub_platform_name}}</span>
+        </div>
+        <q-input v-model="contact.start_time" label="任务时间：" :dense="dense" :rules="[ val => val && val.length > 0 || '请选择']">
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-date v-model="contact.start_time" mask="YYYY-MM-DD HH:mm"></q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+          <template v-slot:after>
+            <q-icon name="access_time" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-time v-model="contact.start_time" mask="YYYY-MM-DD HH:mm" format24h></q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-input v-model="contact.end_time"          label="结束时间："   :dense="dense" :rules="[ val => val && val.length > 0 || '请选择']" >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-date v-model="contact.end_time" mask="YYYY-MM-DD HH:mm" ></q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+          <template v-slot:after>
+            <q-icon name="access_time" class="cursor-pointer">
+              <q-popup-proxy transition-show="scale" transition-hide="scale">
+                <q-time v-model="contact.end_time" mask="YYYY-MM-DD HH:mm" format24h ></q-time>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <div class="item" @click="show(3,listFree)" v-if="contact.tousers==1">
+          <p class="">是否付费：</p>
+          <span class="">{{contact.isfreeName}}</span>
+        </div>
+        <div class="marginBottm" v-if="contact.isfree==0||contact.tousers==0">
+          <q-input v-model="contact.uv_income" label="转发单价：" type="number" :dense="dense" :rules="ruleData.uv_income"
+                  @input="operation()">
+            <template v-slot:append><span style="font-size: 12px">3元起</span></template>
+          </q-input>
+          <q-input v-model="contact.click_num" label="转发人数：" type="number" :dense="dense" :rules="ruleData.click_num"
+                  @input="operation()">
+            <template v-slot:append><span style="font-size: 12px">10次起</span></template>
+          </q-input>
+          <q-input class="txtRed" color="primary" v-model="contact.budget" label="实付金额：" type="number" :dense="dense" :rules="ruleData.budget"
+                  readonly>
+            <template v-slot:append><span style="font-size: 12px">20元起投放</span></template>
+          </q-input>
+        </div>
+        <div class="item mb0" @click="show(5,listReview)">
+          <p class="">审核方式：</p>
+        <!-- <span class="">{{contact.review_platform_name}}</span>-->
+          <span class="">商家审核</span>
+        </div>
+      </div>
+      <div class="line"></div>
+      <div class="txtBox">
+        <h4>任务要求：</h4>
+        <p>{{contact.claim1}}</p>
+        <p>{{contact.claim2}}
+          <Input v-model="contact.after_time" style="width: 30px;margin: 0 4px;text-align: center"/>
+          {{contact.claim3}}</p>
+        <p>{{contact.claim4}}
+          <Input v-model="contact.zan_num" style="width: 30px;margin: 0 4px;text-align: center"/>
+          {{contact.claim5}}</p>
+      </div>
+    </q-form>
+    <div class="xieyi">
+      <q-radio v-model="accept" val="line" label="已阅读并同意 "><span>《任务发布协议》</span></q-radio>
+    </div>
+    <div class="bottomBox">
+      <div class="topBorder enterBtn">
         <q-btn rounded color="primary" class="fBtn" @click="submit(contact)">确认发布</q-btn>
       </div>
+    </div>
     <areas-select v-model="showDialog" @onBack="onResult"></areas-select>
   </q-layout>
 </template>
@@ -324,21 +341,18 @@ export default {
         uv_income: [
           val => {
             if (/^\s*$/.test(val) || !val) return '不能为空'
-            if (val < 0.2) return '不能小于0.2元'
+            if ((val + '').split('.')[1]) {
+              if ((val + '').split('.')[1].length > 2) return '金额只支持到分'
+            }
+            if (val < 3) return '不能小于3元'
             return true
           }
         ],
         click_num: [
           val => {
             if (/^\s*$/.test(val) || !val) return '不能为空'
-            if (val < 100) return '不能小于100次'
-            return true
-          }
-        ],
-        max_income: [
-          val => {
-            if (/^\s*$/.test(val) || !val) return '不能为空'
-            if (val < 3) return '不能小于3元'
+            if (!(/^[1-9]([0-9])*$/.test(val))) return '不能有小数'
+            if (val < 10) return '不能小于10次'
             return true
           }
         ]
@@ -429,7 +443,6 @@ export default {
   },
   created () {
     this.contact = this.$route.query.data
-    console.log(this.contact)
 
     this.isEdit = this.$route.query.attach
     this.getFansLabel()
@@ -458,16 +471,19 @@ export default {
         budget: '', // 实付金额
         after_time: 4,
         zan_num: 1,
-        task_step_explain: '',
-        claim1: '1、将文字和图片一键分享到社交圈',
-        claim2: '2、成功分享',
-        claim3: '小时后上传任务截图',
-        claim4: '3、至少收集',
-        claim5: '个发布者的赞或评论'
+        task_step_explain: ''
       }
     } else {
       this.getNameById()
     }
+    let tishi = {
+      claim1: '1、将文字和图片一键分享到社交圈',
+      claim2: '2、成功分享',
+      claim3: '小时后上传任务截图',
+      claim4: '3、至少收集',
+      claim5: '个发布者的赞或评论'
+    }
+    Object.assign(this.contact, tishi)
     this.contact.start_time = this.formatDate(0)
     this.contact.end_time = this.formatDate(1)
   },
@@ -553,7 +569,7 @@ export default {
               return
             }
           }
-          if (this.contact.accept === false) {
+          if (this.accept === false) {
             this.$toast.fail('您需要先接受许可证和条款')
           } else {
             let imageList = []
@@ -602,17 +618,15 @@ export default {
                   switch (res.status) {
                     case 'success':
                       console.log(res.data)
-                      this.$route.back()
                       break
                     case 'cancel':
-                      this.$route.back()
                       this.$toast.fail('支付取消')
                       break
                     case 'error':
-                      this.$route.back()
                       this.$toast.fail(res.data.message)
                       break
                   }
+                  this.$router.back()
                 })
               } else {
                 this.$toast.fail(data.msg)
@@ -686,7 +700,14 @@ export default {
       })
     },
     operation () {
-      this.contact.budget = this.contact.uv_income * this.contact.click_num
+      this.contact.budget = this.mul(this.contact.uv_income, this.contact.click_num)
+    },
+    mul (num1, num2) {
+      num1 = num1 + ''
+      let digit = num1.split('.')[1] ? num1.split('.')[1].length : 1
+      let m = Math.pow(10, digit)
+      let num = Math.round(num1 * m * num2) / m
+      return num
     },
     handleRemove (file) {
       // const fileList = this.$refs.upload.fileList

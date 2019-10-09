@@ -48,8 +48,8 @@
           <img src="../../../../statics/login/back.png" alt="">
         </div>
         <q-tabs class="col-8" v-model="tab" indicator-color="transparent" active-color="white" narrow-indicator >
-          <q-route-tab active-class="active" name="1" to="/sharetask" class="tabs">分享广告</q-route-tab>
-          <q-route-tab active-class="active" name="2" to="/minitask" class="tabs">小任务</q-route-tab>
+          <q-route-tab active-class="active" name="1" replace to="/sharetask" class="tabs">分享广告</q-route-tab>
+          <q-route-tab active-class="active" name="2" replace to="/minitask" class="tabs">小任务</q-route-tab>
           <!-- <q-route-tab active-class="active" name="3" to="/sharetask" class="tabs">团队任务</q-route-tab> -->
         </q-tabs>
         <div class="col-2"> </div>

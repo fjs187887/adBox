@@ -1,5 +1,10 @@
 <template>
-  <span>{{time}}</span>
+  <span v-if="flag"></span>
+  <span v-else>
+    <span v-if="after">在{{time}}之后</span>
+    <span v-else-if="before">在{{time}}之内</span>
+    <span v-else>{{time}}</span>
+  </span>
 </template>
 
 <script>
@@ -11,9 +16,9 @@ export default {
     }
   },
   mounted () {
-    let time = setInterval(() => {
+    let timer = setInterval(() => {
       if (this.flag === true) {
-        clearInterval(time)
+        clearInterval(timer)
       }
       this.timeDown()
     }, 500)
@@ -24,13 +29,16 @@ export default {
     },
     nowTime: {
       type: String
-    }
+    },
+    after: Boolean,
+    before: Boolean
   },
   methods: {
     timeDown () {
       const endTime = new Date(this.endTime)
       const nowTime = new Date()
       if (endTime <= nowTime) {
+        this.flag = true
         return
       }
       let leftTime = parseInt((endTime.getTime() - nowTime.getTime()) / 1000)

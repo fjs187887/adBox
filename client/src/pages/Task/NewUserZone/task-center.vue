@@ -22,7 +22,7 @@
         .goldBox{
           float: right;
           background: #fff;
-          width: 65px;
+          min-width: 65px;
           border-radius: 25px 0 0 25px;
           padding: 5px;
           img{
@@ -145,6 +145,26 @@
       }
     }
   }
+  // 弹框
+  .TxtBox{
+    padding: 15px;
+    >h3{
+      font-size: 15px;
+      line-height: 24px;
+      font-weight: normal;
+      color: #333;
+      text-align: center;
+    }
+    p{
+      font-size: 13px;
+      color: #666;
+      padding: 5px 0;
+    }
+    p.sTit{
+      font-size: 14px;
+      color:#333;
+    }
+  }
 </style>
 
 <template>
@@ -154,7 +174,7 @@
       <div class="signInTit row">
         <div class="col-9">
           <p class="">今日已签到</p>
-          <img src="statics/newbron/wenhao.png" alt="">
+          <img src="statics/newbron/wenhao.png" alt="" @click="sgininfo">
         </div>
         <div class="col">
           <div class="goldBox" @click="tourl">
@@ -217,6 +237,20 @@
         </div>
       </div>
     </div>
+    <!-- 弹框 -->
+    <q-dialog v-model="alert">
+      <q-card>
+        <div class="TxtBox">
+          <h3>签到规则</h3>
+          <p>1、每日只可签到1次；</p>
+          <p>2、本周连续签到1-2天奖励5金币，连续签到3-4天奖励10金币，连续签到5-6天奖励15金币，连续签到7天奖励20金币；</p>
+          <p>3、签到中断，将重新开始计算连续签到天数。</p>
+        </div>
+        <q-card-actions align="center">
+          <q-btn flat label="我知道了" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-layout>
 </template>
 
@@ -258,7 +292,8 @@ export default {
           date: '周日'
         }
       ],
-      goldval: 0
+      goldval: 0,
+      alert: false
     }
   },
   created () {
@@ -310,6 +345,7 @@ export default {
             message: '签到成功',
             onClose: () => {
               this.inits()
+              this.daytask[0].btname = '已领取'
             }
           })
         } else {
@@ -319,6 +355,9 @@ export default {
     },
     tourl () {
       this.$router.push({ path: '/Goldmall' })
+    },
+    sgininfo () {
+      this.alert = true
     }
   }
 }

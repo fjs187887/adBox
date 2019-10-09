@@ -2,22 +2,40 @@
 .tzBox{
   padding: 20px 15px;
   background-color: #fff;
-  .col-4{
+  .tzbox-item{
+    flex:1;
     text-align: center;
     a{
       color: #333;
       font-size: 13px;
       img{
-        width: 45px;
-        height: 45px;
+        overflow:hidden;
         margin-bottom: 8px;
+        border-radius: 50%;
+        width: 45px; height: 45px;
       }
     }
   }
 }
+.topbar-box{
+  top:50px;
+  z-index:1;
+  width:100%;
+  position:fixed;
+  background-color:#fff;
+}
+.q-list{
+  min-height:40vh;
+}
+.ivu-alert{
+  border-radius:0;
+  margin-bottom: 0;
+  border-width: 1px 0;
+}
 .itemBox{
   padding-top: 15px;
   .row{
+    position: relative;
     padding: 12px 15px;
     .avatarBox{
       position: relative;
@@ -36,13 +54,13 @@
       min-height: 51px;
       position: relative;
       .name{
-        font-size: 15px;
+        font-size: 13px;
         color:#333;
         padding-top: 3px;
       }
       .last-message{
-        margin-top: 8px;
-        margin-bottom: 13px;
+        margin-top: 13px;
+        margin-bottom: 8px;
         font-size: 12px;
         color: #999;
       }
@@ -55,84 +73,68 @@
 </style>
 
 <template>
-  <layout-header class="notification animated fadeIn">
-    <template slot="title">消息</template>
-    <!-- 右侧 -->
-    <!-- <template slot="right">
-      <Badge dot :count="fansUnRead">
-        <q-btn-dropdown icon="more_vert" flat dense round>
-          <q-list>
-            <q-item dense style="border-bottom:1px solid #ccc;">
-              <q-btn to="/message/fans" dense flat size="xs" icon="access_time">
-                <Badge :count="fansUnRead">
-                  <span>粉丝消息</span>
-                </Badge>
-              </q-btn>
-            </q-item>
-            <q-item dense>
-              <q-btn dense flat size="xs" icon="supervisor_account">通讯录</q-btn>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </Badge>
-    </template> -->
-    <!-- 通知栏 -->
-    <van-sticky :offset-top="50">
-    <div class="row tzBox">
-      <div class="col-4">
-        <router-link to="/task-notice">
-          <img src="../../statics/message/tz.png" alt="">
-          <p>通知</p>
-        </router-link>
-      </div>
-      <div class="col-4">
-        <router-link to="/notice/kefu">
-          <img src="../../statics/message/kf.png" alt="">
-          <p>客服</p>
-        </router-link>
-      </div>
-      <div class="col-4">
-        <router-link to="/notice/gg">
-          <img src="../../statics/message/gg.png" alt="">
-          <p>公告</p>
-        </router-link>
+  <div class="container">
+    <div :style="topBarHeight">
+      <div class="topbar-box">
+        <Row class="tzBox" type="flex">
+          <i-col class="tzbox-item" v-for="(session, index) in systemSessions" :key="index">
+            <router-link v-if="session.controller" :to="session.controller">
+              <img :src="session.avatar|toSource">
+              <p>{{session.title}}</p>
+            </router-link>
+            <router-link :to="'/message/system/'+session.id" v-else>
+              <img :src="session.avatar|toSource">
+              <p>{{session.title}}</p>
+            </router-link>
+          </i-col>
+          <i-col class="tzbox-item">
+            <router-link to="/message/fans">
+              <img src="../../statics/Hot/xflb.png">
+              <p>粉丝</p>
+            </router-link>
+          </i-col>
+        </Row>
+        <div class="line" v-if="WsConnected"></div>
+        <Alert type="error" v-else>
+          <span v-if="WsConnecting">正在连接消息服务</span>
+          <span v-else @click="WSConnect">您已断开与消息服务断开链接，点击重连。</span>
+        </Alert>
       </div>
     </div>
-    <div class="line"></div>
-    </van-sticky>
     <q-pull-to-refresh @refresh="refresh" ref="pull">
       <q-list>
         <div class="itemBox">
-          <div class="row" v-for="(item, index) in chats" :key="index" @click="toDetail(item)">
-            <!-- 左 头像 -->
+          <div class="row" v-for="(item, index) in sessionsArray" :key="index" @click="toDetail(item)">
             <div class="col-2 avatarBox">
-<!--              <q-avatar color="primary" text-color="white" :icon="item.avatar|convertToIcon">-->
-              <q-avatar>
-                <img :src="item.avatar || 'statics/user/avatar.png'" alt="">
+              <avatar :src="item|toAvatar(info.id)">
                 <q-badge floating v-if="item.unread>0" round>{{item.unread}}</q-badge>
-              </q-avatar>
+              </avatar>
               <img class="imgQy" src="statics/TaskHall/qiye.png" v-if="item.type === 3"/>
             </div>
-            <!-- 右 内容 -->
             <div class="col-10 btBorder">
-              <p class="name">{{item|toName}}</p>
-              <p caption lines="1" class="last-message">{{item.lastMessage|toString}}</p>
+              <p class="name text-ellipsis">{{item|toName}}</p>
+              <p caption lines="1" class="last-message text-ellipsis">{{item.messages|toText(item.members)}}</p>
             </div>
           </div>
         </div>
       </q-list>
     </q-pull-to-refresh>
-  </layout-header>
+  </div>
 </template>
 <script>
-import deepcopy from 'deepcopy'
-import { mapState, mapGetters, mapActions } from 'vuex'
-import LayoutHeader from 'pages/Layout-header'
-import MessageViewer, { MsgTypes } from './display-components'
+import {
+  mapState,
+  mapGetters,
+  mapActions } from 'vuex'
+import filters from './filters'
+import avatar from 'src/components/avatar'
+
 export default {
-  components: { LayoutHeader },
+  filters,
+  components: { avatar },
   data () {
     return {
+      title: '消息',
       loaded: false,
       loading: false,
       chats_more: true,
@@ -140,92 +142,58 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['sessions', 'page', 'hasCache', 'info']),
-    ...mapState({
-      chats_raw: state => state.message.sessions
-    }),
-    runLoad () {
-      return (!this.hasCache || !this.chats_raw.length) && !this.loaded
-    },
-    chats () {
-      return deepcopy(this.chats_raw).map(item => {
-        let members = Object.assign({}, ...item.members.map(m => {
-          return { [m.uid]: m }
-        }))
-        item.messages.some(message => {
-          if (members[message.from_uid]) {
-            item.lastMessage = {
-              nickname: (members[message.from_uid].talk_nickname || members[message.from_uid].nickname) + ': ',
-              content: message.content,
-              type: message.type
-            }
-            return true
-          }
-        })
-        return item
-      })
-    }
-  },
-  filters: {
-    convertToIcon (url) {
-      return 'img:' + url
-    },
-    toName (item) {
-      switch (item.type) {
-        case 3:
-        case 1: return item.members[0].talk_nickname || item.members[0].nickname
-        case 2: return item.title || `群聊（${item.members.slice(0, 5).map(m => m.talk_nickname || m.nickname).join('、')}）`
+    ...mapState({ sessionsArray: state => state.message.sessions }),
+    ...mapGetters(['sessions', 'systemSessions', 'hasCache', 'info', 'WsConnected', 'WsConnecting']),
+    topBarHeight () {
+      return {
+        height: this.WsConnected ? '112px' : '140px'
       }
     },
-    toString: message => {
-      if (!message || !MsgTypes[message.type]) return ''
-      return message.nickname + MessageViewer[MsgTypes[message.type]].methods.toString(message.content)
+    runLoad () {
+      return (!this.hasCache || !this.sessionsArray.length) && !this.loaded
     }
   },
   mounted () {
     if (this.runLoad) this.$refs.pull.trigger()
   },
   methods: {
-    ...mapActions([
-      'setCurrentSession',
-      'resetSessionList',
-      'pushSessionList',
-      'pageSetInc',
-      'resetPage'
-    ]),
+    ...mapActions(['setSessionList', 'pushSessionList', 'clearSessionUnread', 'resetSendingMessage']),
     refresh (done) {
-      this.resetPage()
       this.chats_more = true
-      this.getSessions(this.page, true).then(done)
+      this.getSessions(1, done)
+      this.getSystemSession(done)
     },
-    getSessions (page, reset = false) {
-      return new Promise(resolve => {
-        if (this.loading) return void resolve()
-        if (!this.chats_more) return void resolve()
-        this.loading = true
-        this.$http.getMessageSession(page, ({ errcode, data, message }) => {
-          this.loading = false
-          if (errcode === 0) {
-            this.pageSetInc()
-            this.chats_more = data.more
-            if (reset) {
-              this.resetSessionList({
-                uid: this.info.id,
-                sessions: data.list
-              })
-            } else this.pushSessionList(data.list)
-            if (this.chats_more) {
-              this.getSessions(this.page).then(resolve)
-            } else resolve()
-          } else {
-            resolve()
-            this.$Message.error(message || '网络错误，请重试')
-          }
-        }).catch(e => {
-          this.loading = false
-          resolve()
-        })
+    getSystemSession (done) {
+      this.$http.getSystemSession(() => done())
+    },
+    getSessions (page, done) {
+      if (this.loading || !this.chats_more) {
+        return void 0
+      }
+      this.loading = true
+      this.$http.getMessageSession(page, ({ errcode, data, message }) => {
+        if (errcode === 0) {
+          if (page === 1) {
+            this.setSessionList({
+              uid: this.info.id,
+              sessions: data.list
+            })
+            this.resetSendingMessage()
+          } else this.pushSessionList(data.list)
+          done(!(this.chats_more = data.more))
+        } else {
+          this.$toast(message || '网络错误，请重试')
+          done()
+        }
+        this.loading = false
+      }).catch(e => {
+        this.loading = false
+        this.$toast.error('加载失败')
+        done(true)
       })
+    },
+    WSConnect () {
+      this.$ws.connect()
     },
     toDetail (item) {
       this.$router.push(`/message/${item.id}`)

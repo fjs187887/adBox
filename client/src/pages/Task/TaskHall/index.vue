@@ -45,7 +45,7 @@ div.a{
   position: fixed;
   right: 10px;
   bottom: 120px;
-  width: 50px;
+  width: 70px;
   height:auto;
   opacity: 1;
   transition: all .2s;

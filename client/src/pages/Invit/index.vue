@@ -398,7 +398,7 @@ export default {
       } else if (val === 'ewm') {
         this.$router.push({ path: '/Invit/qrcode' })
       } else {
-        this.$share('Ad盒子', '请先注册账号，然后下载APP即可直接登录', 'http://ad.fumenhu.cn/static/image/bgimg.jpg', this.invite_url, Number(val)).then(data => {
+        this.$share('萤多多', '请先注册账号，然后下载APP即可直接登录', 'http://ad.fumenhu.cn/static/image/bgimg.jpg', this.invite_url, Number(val)).then(data => {
           this.$set(this, 'display', data)
         }).catch(e => {
           console.dir(e)

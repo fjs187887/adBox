@@ -1,37 +1,45 @@
+<style lang="less" scoped>
+.head{
+  padding: 0 15px;
+  .item{
+    position: relative;
+    padding: 20px 0;
+    justify-content: center;
+    align-items: center;
+    .imgBox{
+      overflow: hidden;
+      img{
+        border-radius: 50%;
+        width:39px;
+      }
+    }
+    .nameBox{
+      padding-right: 20px;
+      font-size: 13px;
+      color: #333;
+    }
+    .idBox{
+      text-align: right;
+      font-size: 13px;
+      color: #ff853a;
+    }
+  }
+}
+</style>
+
 <template>
-  <div class="row head">
-    <div class="row" style="padding: 10px 20px;width: 100%">
-      <div class="col-1"></div>
-      <div class="row col-11" style="text-align: center">
-        <div class="col-4">
-          粉丝名称
-        </div>
-        <div class="col-4">
-          关注时间
-        </div>
-        <div class="col-4">
-          粉丝属性
-        </div>
-      </div>
-    </div>
-    <div class="bot1"></div>
-    <div class="row bot2" v-for="contact in dataInfo" :key="contact.id">
-      <div class="col-1">
+  <div class="head animated fadeIn">
+    <div class="row item btBorder" v-for="contact in dataInfo" :key="contact.id">
+      <div class="col-2 imgBox">
         <span v-if="contact.avatar"><img :src="contact.avatar" class="imgt"></span>
-        <span v-else><img src="../../../statics/user/avatar.png" class="imgt"></span>
+        <span v-else><img src="statics/user/avatar.png" class="imgt"></span>
       </div>
-      <div class="row col-11" style="text-align: center">
-        <div class="col-4">
-          <span v-if="contact.nickname">{{contact.nickname}}</span>
-          <span v-else>{{contact.fans_id}}</span>
-        </div>
-        <div class="col-4">
-          {{contact.create_time}}
-        </div>
-        <div class="col-4">
-          <span @click="show(contact.fans_id)">{{contact.follwname}}</span>
-        </div>
+      <div class="col-4 nameBox text-ellipsis">
+        <span v-if="contact.nickname">{{contact.nickname}}</span>
+        <span v-else>{{contact.fans_id}}</span>
       </div>
+      <div class="col-4">{{contact.create_time}}</div>
+      <div class="col-2 idBox"><span @click="show(contact.fans_id)">{{contact.follwname}}</span></div>
     </div>
   </div>
 </template>
@@ -46,7 +54,7 @@ export default {
   },
   inject: ['registerRightComponent', 'setTitle'],
   mounted () {
-    this.setTitle('粉丝')
+    this.setTitle('粉丝管理')
   },
   created () {
     this.getfanslist()
@@ -64,6 +72,7 @@ export default {
     getfansvisitor () {
       this.$http.post('app/FansFollw/index', (res) => {
         if (res.code === 0) {
+          res.data.splice(0, 1)
           this.actions = res.data
         } else {
         }
@@ -89,25 +98,3 @@ export default {
   }
 }
 </script>
-<style scoped>
-  .bot1{
-    border-bottom: #eeeeee 10px solid;
-    /*margin: 10px 0;*/
-    width: 100%;
-  }
-  .bot2{
-    border-bottom: #eeeeee 1px solid;
-    width: 100%;
-    padding: 10px 20px;
-    font-size: 12px;
-  }
-  .head{
-    font-size: 16px;
-  }
-  .imgt{
-    /*margin: 30px 25px;*/
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
-</style>

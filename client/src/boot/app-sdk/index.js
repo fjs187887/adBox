@@ -32,6 +32,16 @@ export default async () => {
     return CallAppSDK('openCameraFromJS', [type], 'app_camera_')
       .then(args => typeof callback === 'function' && callback.call(this, ...args))
   }
+  /**
+   * 下载图片
+   * @param imgList
+   * @param callback
+   * @returns {Promise<unknown>}
+   */
+  Vue.prototype.$saveImg = function (desc, platform = 0, imgList, callback) {
+    return CallAppSDK('saveImgFromJS', [desc, platform, imgList], 'app_img_')
+      .then(args => typeof callback === 'function' && callback.call(this, ...args))
+  }
   Vue.prototype.$quickLogin = function (type, callback) {
     let promise = new Promise((resolve, reject) => {
       this.$http.getRsaKey().then(({ data: { errcode, data, message } }) => {
@@ -44,7 +54,7 @@ export default async () => {
     promise.catch(e => console.warn(e))
     return promise
   }
-  Vue.prototype.$share = function (title, desc, img, url, platform = 0, type = 0, callback) {
+  Vue.prototype.$share = function (title, desc = '', img, url, platform = 0, type = 0, callback) {
     return CallAppSDK(
       'shareInfoFromJS',
       [title, desc, img, url, platform, type], 'app_share_'

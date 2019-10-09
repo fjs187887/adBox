@@ -18,10 +18,18 @@
       padding-top: 5px;
       font-size: 14px;
       font-weight: 600;
-      margin-bottom: 16px;
+      padding-bottom: 3px;
     }
     p{
       font-size: 12px;
+      margin-top:10px;
+      .q-btn{
+        padding: 0;
+        min-height: 0;
+        /deep/.q-icon{
+          font-size: 11px!important;
+        }
+      }
     }
   }
   // 数量
@@ -114,7 +122,7 @@
 </style>
 
 <template>
-  <div class="animated fadeIn">
+  <div class="animated">
     <!-- 头 -->
     <div class="head">
       <!-- 头像 名称简介 -->
@@ -125,8 +133,11 @@
         </div>
         <div class="col-8 nameBox">
           <div>
-            简介：<span>{{contact.auth_introduction}}</span>
+            认证：<span>{{contact.name}}</span>
           </div>
+          <p>
+            简介：<span>{{contact.auth_introduction}}</span>
+          </p>
           <p>
             主营业务：<span>{{contact.main_business}}</span>
           </p>
@@ -164,7 +175,7 @@
       <!-- 按钮 -->
       <div class="row btnBox">
         <div class="btnItem" v-if="contact.isfans==1">
-          <q-btn class="bg-primary text-white" flat @click="chat()">进入商家号</q-btn>
+          <q-btn class="bg-primary text-white" flat @click="chat()">发送消息</q-btn>
         </div>
         <div class="btnItem">
           <span v-if="contact.isfans==0">
@@ -180,9 +191,9 @@
     <div class="line"></div>
     <!-- 内容bar -->
     <q-tabs class="q-tabs-c" v-model="tab" align="left" indicator-color="transparent" active-color="#000" @input="show=true">
-      <q-tab active-class="active" name="1" @click="startPage('/businessaccount/detailtask',0)">分享广告</q-tab>
-      <q-tab active-class="active" name="2" @click="startPage('/businessaccount/detailmini',1)">小任务</q-tab>
-      <q-tab active-class="active" name="3" @click="startPage('/businessaccount/detailmini',2)">团队任务</q-tab>
+      <q-tab active-class="active" name="1" @click="startPage('/detailtask')">分享广告</q-tab>
+      <q-tab active-class="active" name="2" @click="startPage('/detailmini')">小任务</q-tab>
+      <q-tab active-class="active" name="3" @click="startPage('/detailteam')">团队任务</q-tab>
     </q-tabs>
     <!-- 内容 -->
     <q-page-container>
@@ -192,6 +203,7 @@
 </template>
 <script>
 export default {
+  inject: ['setTitle'],
   filters: {
     btnName (model) {
       switch (model) {
@@ -209,8 +221,7 @@ export default {
       tab: '1',
       contact: '',
       uid: '',
-      model: 1,
-      title: '商家号详情'
+      model: 1
     }
   },
   created () {
@@ -218,12 +229,18 @@ export default {
     this.getbuessinfo()
   },
   methods: {
-    startPage (path, type) {
-      this.$router.push({ path: path, query: { id: this.uid, type: type } })
+    startPage (path) {
+      this.$router.replace({ path: '/businessaccount' + path, query: { id: this.uid } })
     },
     chat () {
       // eslint-disable-next-line no-template-curly-in-string
-      this.$router.push(`/message/${this.contact.session_id}`)
+      console.log(this.uid)
+      console.log(this.$store.state.user.info.id)
+      if (this.uid === this.$store.state.user.info.id + '') {
+        this.$toast.fail('您不能给自己发送消息')
+      } else {
+        this.$router.push(`/message/${this.contact.session_id}`)
+      }
     },
     getbuessinfo () {
       this.$http.post('app/Business/business_info', { uid: this.uid }, (res) => {
@@ -232,7 +249,7 @@ export default {
           // this.contact.type = res.data.type
           // this.contact.name = res.data.name
           this.contact = res.data
-          this.title = this.conatct.name
+          this.setTitle(this.contact.nickname)
         }
       })
     },
@@ -243,21 +260,12 @@ export default {
     gofans () {
       this.$http.post('app/UserFans/add', { uid: this.contact.id }, (res) => {
         if (res.code === 0) {
-          this.fans = 1
-          this.$q.notify({
-            position: 'center',
-            message: '关注成功',
-            type: 'success',
-            onDismiss: () => {
-              this.contact.isfans = 1
-            }
-          })
+          this.$toast.success('关注成功')
+          this.contact.isfans = 1
+          this.contact.fanscount = this.contact.fanscount + 1
         } else {
-          this.fans = 0
-          this.$q.notify({
-            position: 'center',
-            message: res.msg,
-            type: 'error'
+          this.$toast.fail({
+            message: res.msg
           })
         }
       })
@@ -265,23 +273,12 @@ export default {
     delfans () {
       this.$http.post('app/UserFans/delfans', { uid: this.contact.id }, (res) => {
         if (res.code === 0) {
-          this.fans = 0
-          if (res.code === 0) {
-            this.$q.notify({
-              position: 'center',
-              message: '取消关注成功',
-              type: 'success',
-              onDismiss: () => {
-                this.contact.isfans = 0
-              }
-            })
-          }
+          this.$toast.success('取消关注成功')
+          this.contact.isfans = 0
+          this.contact.fanscount = this.contact.fanscount - 1
         } else {
-          this.fans = 1
-          this.$q.notify({
-            position: 'center',
-            message: res.msg,
-            type: 'error'
+          this.$toast.fail({
+            message: res.msg
           })
         }
       })

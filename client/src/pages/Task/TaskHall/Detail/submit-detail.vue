@@ -8,7 +8,7 @@
     left: 23px;
     top: 36px;
     width: 1px;
-    height: 165px;
+    height: 167px;
     background: #e6e6e6;
     transform: scaleX(0.5);
   }
@@ -33,8 +33,9 @@
       color: #999;
     }
     .yuanyin{
-      color:#333;
-      margin-top:15px;
+      // color:#333;
+      margin-top: -15px;
+      line-height: 24px;
     }
   }
   .imgBox{

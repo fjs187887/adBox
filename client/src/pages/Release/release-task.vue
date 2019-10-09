@@ -88,21 +88,32 @@
   margin-top: 20px;
 }
 .xieyi{
+  padding-bottom: 70px;
   text-align: center;
-  font-size: 12px;
+  font-size: 12px!important;
   color:#666;
-  padding-top:20px;
   span{
     color: rgb(255,90,61)
   }
+  /deep/.q-radio__label{
+    font-size: 12px;
+  }
 }
-.enterBtn{
-  padding: 10px 15px 30px;
-  .q-btn{
-    width:100%;
-    font-size: 13px;
-    height:40px;
-    box-shadow: none;
+.bottomBox{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  .enterBtn{
+    position: relative;
+    padding: 15px;
+    .q-btn{
+      width:100%;
+      font-size: 13px;
+      height:40px;
+      box-shadow: none;
+    }
   }
 }
 </style>
@@ -213,8 +224,10 @@
     <div class="xieyi">
       <q-radio v-model="accept" val="line" label="已阅读并同意 " ><span>《任务发布协议》</span></q-radio>
     </div>
-    <div class="bg-transparent enterBtn">
-      <q-btn rounded color="primary" class="fBtn" @click="submit(contact)">确认发布</q-btn>
+    <div class="bottomBox">
+      <div class="topBorder enterBtn">
+        <q-btn rounded color="primary" class="fBtn" @click="submit(contact)">确认发布</q-btn>
+      </div>
     </div>
   <areas-select v-model="showDialog" @onBack="onResult"></areas-select>
 </q-layout>
@@ -260,6 +273,9 @@ export default {
         uv_income: [
           val => {
             if (/^\s*$/.test(val) || !val) return '不能为空'
+            if ((val + '').split('.')[1]) {
+              if ((val + '').split('.')[1].length > 2) return '金额只支持到分'
+            }
             if (val < 0.2) return '不能小于0.2元'
             return true
           }
@@ -267,6 +283,7 @@ export default {
         click_num: [
           val => {
             if (/^\s*$/.test(val) || !val) return '不能为空'
+            if (!(/^[1-9]([0-9])*$/.test(val))) return '不能有小数'
             if (val < 100) return '不能小于100次'
             return true
           }
@@ -274,6 +291,7 @@ export default {
         max_income: [
           val => {
             if (/^\s*$/.test(val) || !val) return '不能为空'
+            if (!(/^[1-9]([0-9])*$/.test(val))) return '不能有小数'
             if (val < 3) return '不能小于3元'
             return true
           }
@@ -345,9 +363,9 @@ export default {
     if (!this.contact) {
       this.contact = {
         type: '1',
-        title: '', // 广告标题
-        cover: '',
-        link: '', // 内容链接地址
+        title: this.$route.query.title || '', // 广告标题
+        cover: this.$route.query.cover || '',
+        link: this.$route.query.link || '', // 内容链接地址
         tousers: '-1', // tousers 接收人群0:所有1:粉丝
         tousersName: '请选择接收人群', // 接收人群
         fans: '-1', // fans 粉丝表id（0：所有，xx:id）
@@ -478,17 +496,15 @@ export default {
                   switch (res.status) {
                     case 'success':
                       console.log(res.data)
-                      this.$route.back()
                       break
                     case 'cancel':
-                      this.$route.back()
                       this.$toast.fail('支付取消')
                       break
                     case 'error':
-                      this.$route.back()
                       this.$toast.fail(res.data.message)
                       break
                   }
+                  this.$router.back()
                 })
               } else {
                 this.$toast.fail(data.msg)
@@ -557,7 +573,14 @@ export default {
       })
     },
     operation () {
-      this.contact.budget = this.contact.uv_income * this.contact.click_num
+      this.contact.budget = this.mul(this.contact.uv_income, this.contact.click_num)
+    },
+    mul (num1, num2) {
+      num1 = num1 + ''
+      let digit = num1.split('.')[1] ? num1.split('.')[1].length : 1
+      let m = Math.pow(10, digit)
+      let num = Math.round(num1 * m * num2) / m
+      return num
     },
     handleSuccess (res, file) {
       this.contact.cover = res.data

@@ -1,232 +1,396 @@
-<style lang="less" scoped>
-  .head{
-    text-align: center;
-    background:url('../../../statics/TaskHall/rwBar.png');
-    background-size: 100%;
-    padding: 20px 0;
-    margin: 10px 15px 5px;
-    color: #fff;
-    overflow: hidden;
-    font-size: 13px;
-    height: 85px;
-    line-height: 45px;
-    transition: height .3s; /* 吸顶时间 */
-  }
-  .border-top-10{
-    border-top: 6px #eee solid;
-    padding: 20px 12px;
-    margin-top: 20px;
-    color: black;
-    font-size: 13px;
-  }
-
-  .xieyi {
-    text-align: center;
-    font-size: 12px;
-    color: #666;
-    padding-top: 20px;
-
-    span {
-      color: rgb(255, 90, 61)
+<style scoped lang="less">
+.body{
+  // top北京
+  .topBox{
+    padding: 0 15px;
+    min-height: 160px;
+    background-image: url(../../../statics/Hot/bg.png);
+    background-size: 100% 100%;
+    .topHeader{ // 标题
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 50px;
+      span{
+        position: absolute;
+        left: 0;
+        display: flex;
+        width: 8px;
+        height: 14px;
+        img{
+          width: 100%;
+        }
+      }
+      p{
+        font-size: 14px;
+        color: #fff;
+      }
+    }
+    .statusBox{ // 开通状态
+      >div{
+        padding: 20px 0;
+        align-items: center;
+        >span{
+          font-size: 15px;
+          color:#fff;
+          font-weight: 600;
+        }
+        .rightSpan{
+          font-size: 12px;
+          color: #fff;
+          text-align: right;
+        }
+      }
+    }
+    .tabBox{
+      height: 55px;
+      padding: 15px 0;
+      >div{
+        position: relative;
+        height: 100%;
+        font-size: 13px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &::after{
+          border-color: rgb(255,215,55)!important;
+        }
+        >a{
+          color: rgb(255,215,55)
+        }
+      }
     }
   }
-
-  .enterBtn {
-    padding: 10px 15px 15px;
-
-    .q-btn {
-      width: 100%;
-      font-size: 13px;
-      height: 40px;
+  // 用户特权
+  .cenBox{
+    padding: 20px 15px;
+    .scrollBox{
+      width:100%;
+      min-height: 115px;
+      padding: 20px 0 15px 10px;
+      background-image: url(../../../statics/Hot/tqbg.png);
+      background-size: 100% 100%;
+      >p{
+        font-size: 14px;
+        color: #333;
+        line-height: 1;
+        margin-bottom: 15px;
+      }
+      .itemList{
+        white-space: nowrap;
+        overflow: hidden;
+        overflow-x: scroll;
+        display: flex;
+        flex-wrap: unset;
+        &::-webkit-scrollbar{
+          display: none;
+        }
+        .item{
+          float: left;
+          width: 50px;
+          height: auto;
+          margin-right: 15px;
+          text-align: center;
+          img{
+            width: 36px;
+            margin-bottom: 10px;
+          }
+          span{
+            display: block;
+            width: 100%;
+            text-align: center;
+            line-height: 1;
+            font-size: 12px;
+            white-space: nowrap;
+            color: #ff853a;
+          }
+        }
+      }
+    }
+  }
+  // 购买套餐
+  .buyBox{
+    padding: 0 15px;
+    .tcBox{
+      padding-bottom: 15px;
+      background-image: url(../../../statics/Hot/tcbg.png);
+      background-size: 100% 100%;
+      >p{
+        padding: 15px 11px;
+        font-size: 14px;
+        color: #333;
+        line-height: 1;
+        span{
+          float: right;
+        }
+      }
+      .itemList{
+        border-radius: 5px;
+        width: 100%;
+        background-color: #fff;
+      }
+    }
+  }
+  // 套餐选
+  .package{
+    display:flex;
+    width:100%;
+    flex-wrap: wrap;
+    align-content: space-between;
+    .item{
+      flex: 1;
+      margin: 10px;
+      height:auto;
+      padding:15px 0;
+      text-align:center;
+      border-radius:5px;
+      border: 1px solid #b7bdc7;
+      background-color: #fff;
+      &.ivu-radio-wrapper-checked{
+        background-color: #fff1e8;
+        border: 1px solid #ff853a;
+      }
+      .name{
+        font-size:13px;
+        color: #333;
+      }
+      .price{
+        margin: 15px 0;
+        font-size: 25px;
+        line-height: 1;
+        color: rgb(255,90,61);
+      }
+      .desc{
+        color: #999;
+        font-size:12px;
+      }
+      /deep/.ivu-radio{
+        display:none;
+      }
+    }
+  }
+  // 协议
+  .xieyi{
+    position: fixed;
+    width: 100%;
+    bottom: 71px;
+    left: 0;
+    background-color: #fff;
+    p{
+      color: #666;
+      span{
+        color: #ff853a;
+      }
+    }
+    /deep/.ivu-checkbox-wrapper{
+      margin-right: 0;
+    }
+    /deep/.ivu-checkbox-checked>.ivu-checkbox-inner{
+      border-color: #ff853a!important;
+      background-color: #ff853a!important;
+    }
+    /deep/.ivu-checkbox-focus{
       box-shadow: none;
     }
   }
-  .pay-item {
-    border-radius: 10px;
-    width: 30%;
-    height: 60px;
-    margin: 0 1.5%;
-    line-height: 2;
-    background: #9e9e9e;
-  }
-  .pay-item.primarys {
-    background: #ff853a;
-  }
-
-  .diaTop{
-    padding: 0;
-    line-height: 3;
-    text-align: center;
+  // 底部按钮
+  .bottomBox{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: #fff;
+    padding: 15px;
     width: 100%;
-    font-weight: 500;
-    background-size: 100%;
+    .ivu-btn{
+      padding: 0;
+    }
+    .ivu-btn-error{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #ff853a;
+      border: none;
+      height: 40px;
+      font-size: 13px;
+      border-radius: 25px;
+    }
+    .ivu-btn:focus{
+      box-shadow: none;
+    }
   }
-  .diaTit{
-    font-size: 18px;
-  }
-  .diaCen{
-    padding: 30px 15px 10px;
-  }
-  .diaCen .ydjl{
-    line-height: 1;
-    border-bottom: 1px solid #e6e6e6;
-    padding-bottom: 15px;
-    font-size: 14px;
-    color: #333;
-  }
-  .diaCen .ydjl span{
-    color: rgb(255,133,58);
-    margin-right:10px;
-  }
-  .diaCen p{
-    margin: 20px 0;
-    font-size: 13px;
-    color: #333;
-  }
-  .diaBtn{
-    width: 100%;
-    margin: 0 15px;
-    margin-bottom: 20px;
-  }
+}
 </style>
-
 <template>
-  <q-layout>
-    <p v-if="isVip" style="line-height: 3;text-align: center;width: 100%">1个月套餐  2019-07-01到期</p>
-    <p v-else style="line-height: 3;text-align: center;width: 100%">您还未开通热文推会员</p>
-    <div class="row head">
-      <div class="col-6" @click="startPage('/myhot')" style="border-right: 1px #fff solid">
-      <p>我的热文</p>
-    </div>
-    <div class="col-6" @click="startPage('/textrecommend')">
-      <p>发布热文</p>
-    </div>
-    </div>
-    <p class="border-top-10">用户特权</p>
-    <div style="border: 1px #eeeeee solid;margin: 12px;padding: 12px 0">
-      <div class="row text-center text-black">
-        <div class="col-4">会员能力</div>
-        <div class="col-4">普通用户</div>
-        <div class="col-4">会员用户</div>
+  <div class="animated fadeIn body">
+    <!-- top背景 -->
+    <div class="topBox">
+      <!-- 标题 -->
+      <div class="topHeader">
+        <span @click="onBack('/user')"><img src="statics/Hot/arrow.png" alt=""></span>
+        <p>热文推</p>
       </div>
-      <br>
-      <br>
-      <div class="row text-center" v-for="item in dataInfo" :key="item.id" style="line-height: 2;border-top: 1px #eeeeee solid">
-        <div class="col-4">{{item.name}}</div>
-        <div class="col-4">{{item.common}}</div>
-        <div class="col-4">{{item.vip}}</div>
+      <div class="statusBox">
+        <div class="status-open row" v-if="HotVip">
+          <span>您已开通会员</span>
+          <span class="rightSpan col">{{HotVip}}到期</span>
+        </div>
+        <div class="status-close row" v-else>
+          <span>您还未开通热文推会员</span>
+        </div>
       </div>
-    </div>
-    <div class="row full-width border-top-10">
-      <p class="col-6">购买会员</p>
-      <p class="col-6 text-right text-primary" @click="persistent=true">兑换码</p>
-    </div>
-    <div class="row text-center text-white">
-      <div class=" pay-item" :class="{primarys: payType===0}" @click="checked(0)">
-        <p> 一个月：50元</p>
-        <p>50元/月</p>
-      </div>
-      <div class=" pay-item" :class="{primarys: payType===1}" @click="checked(1)">
-        <p> 一季度：120元</p>
-        <p>40元/月</p>
-      </div>
-      <div class=" pay-item" :class="{primarys: payType===2}" @click="checked(2)">
-        <p> 一年：360元</p>
-        <p>30元/月</p>
+      <div class="tabBox row">
+        <div class="col-6 riBorder">
+          <router-link to="/myhot">我的热文</router-link>
+        </div>
+        <div class="col-6">
+          <router-link to="/textrecommend">发布热文</router-link>
+        </div>
       </div>
     </div>
-    <div style="position: fixed;bottom:0;width: 100%">
-      <div class="xieyi">
-        <q-radio v-model="accept" val="line" label="已阅读并同意 "><span>《热文推协议》</span></q-radio>
-      </div>
-      <div class="bg-transparent enterBtn">
-        <q-btn rounded color="primary" class="fBtn" @click="toPay(payType)">立即
-          <span v-if="isVip">续费</span>
-          <span v-else>购买</span>
-        </q-btn>
+    <!-- 用户特权 -->
+    <div class="cenBox">
+      <div class="scrollBox">
+        <p>用户特权</p>
+        <ul class="itemList">
+          <li class="item" v-for="(item, index) in itemList" :key="index">
+            <img :src="item.imgsrc" alt="">
+            <span>{{item.name}}</span>
+          </li>
+        </ul>
       </div>
     </div>
-    <q-dialog v-model="persistent" persistent transition-show="scale" transition-hide="scale">
-      <q-card class="bg-primary text-white">
-        <q-card-section class="diaTop" algn="center">
-          <div class="diaTit">兑换热文推会员</div>
-        </q-card-section>
-        <q-card-section class="diaCen bg-white text-black">
-          <q-input v-model="dhm" placeholder="请输入兑换码"></q-input>
-        </q-card-section>
-        <q-card-actions align="center" class="bg-white text-white">
-          <q-btn class="diaBtn bg-primary" flat label="确认兑换" v-close-popup @click="duihuan()"></q-btn>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-  </q-layout>
+    <!-- 购买会员 -->
+    <div class="buyBox">
+      <div class="tcBox">
+        <p>购买会员套餐<span @click="openExchange">兑换码</span></p>
+        <div class="itemList row">
+          <RadioGroup class="package" v-model="form.package">
+            <Radio class="item" v-for="item in packages" :key="item.id" :label="item.id">
+              <p class="name">{{item.name}}</p>
+              <p class="price">{{item.price | money}}</p>
+              <p class="desc">{{item.desc}}</p>
+            </Radio>
+          </RadioGroup>
+        </div>
+      </div>
+    </div>
+    <div class="xieyi">
+      <p class="agree text-center q-mb-lg q-mt-lg">
+        <Checkbox v-model="form.agree">已阅读并同意 <span>《任务发布协议》</span></Checkbox>
+      </p>
+    </div>
+    <div class="bottomBox topBorder">
+      <Button type="error" v-if="HotVip" :loading="buying" long @click="buy()">立即续费</Button>
+      <Button type="error" v-else :loading="buying" long @click="buy()">立即购买</Button>
+    </div>
+  </div>
 </template>
-
 <script>
+import { mapGetters, mapActions } from 'vuex'
+import privilege from './privilege'
+import Vue from 'vue'
+Vue.filter('money', val => {
+  val = val / 100
+  return val
+})
 export default {
-  inject: ['setTitle'],
-  mounted: function () {
-    this.setTitle('热文推')
-  },
   data () {
     return {
-      dataInfo: [
+      form: {
+        agree: true,
+        package: 0
+      },
+      privilege,
+      buying: !1,
+      packages: [],
+      itemList: [
         {
-          id: '0',
-          name: '顶部平台广告',
-          common: '不可去除',
-          vip: '去除'
+          imgsrc: 'statics/Hot/dbgg.png',
+          name: '顶部广告'
         },
         {
-          id: '1',
-          name: '自选热文',
-          common: '5次/月',
-          vip: '不限量'
+          imgsrc: 'statics/Hot/dibgg.png',
+          name: '底部广告'
         },
         {
-          id: '2',
-          name: '推荐热文',
-          common: '5篇/月',
-          vip: '不限量'
+          imgsrc: 'statics/Hot/tjrw.png',
+          name: '推荐热文'
         },
         {
-          id: '3',
-          name: '底部广告',
-          common: '1条',
-          vip: '8条轮播'
+          imgsrc: 'statics/Hot/zxrw.png',
+          name: '自选热文'
+        },
+        {
+          imgsrc: 'statics/Hot/xflb.png',
+          name: '悬浮轮播'
+        },
+        {
+          imgsrc: 'statics/Hot/xgfx.png',
+          name: '效果分析'
+        },
+        {
+          imgsrc: 'statics/Hot/lbcb.png',
+          name: '裂变传播'
         }
       ],
-      persistent: false,
-      accept: false,
-      dhm: '',
-      payType: 0,
-      isVip: true
+      style: { backgroundColor: 'rgba(242, 242, 242, 1)' }
     }
   },
-  created () {
+  mounted () {
+    this.$http.getHotTextPackages(({ errcode, data, message }) => {
+      if (errcode === 0) {
+        this.packages = data
+        console.log(this.packages)
+        if (this.packages && this.packages[0]) {
+          this.form.package = this.packages[0].id
+        }
+      }
+    })
   },
+  computed: mapGetters(['info', 'HotVip']),
   methods: {
-    startPage (path) {
-      this.$router.push({ path: path, query: '' })
+    ...mapActions(['setUserInfo']),
+    onBack (value) {
+      this.$router.push(value)
     },
-    duihuan (value) {
-      if (!value) {
-        this.$toast.fail('请输入兑换码')
-        return
+    buy () {
+      if (this.buying) {
+        return void 0
       }
-      console.log(this.dhm)
-    },
-    toPay (type) {
-      if (this.accept === false) {
-        this.$toast.fail('您需要先接受许可证和条款')
-        return
+      if (!this.form.agree) {
+        return void this.$toast('请先阅读并同意热文推协议')
       }
-      console.log(type)
+      if (!this.form.package) {
+        return void this.$toast('请选择要购买的套餐')
+      }
+      this.buying = true
+      this.$http.buyHotPackage(this.form, ({ errcode, data, message }) => {
+        if (errcode === 0) {
+          this.$Pay(data.order_sn, res => {
+            this.buying = false
+            switch (res.status) {
+              case 'success':
+                this.buying = true
+                this.$http.userGetInfo(this.info.id, ({ errcode, data, message }) => {
+                  this.buying = false
+                  if (errcode === 0) this.setUserInfo(data)
+                }).catch(e => {
+                  this.buying = false
+                })
+                break
+              case 'fail':
+                this.$toast.fail(res.data.message || '支付失败')
+                break
+              case 'cancel':
+                console.log(res.status, res)
+                break
+            }
+          }).catch(e => (this.buying = false))
+        } else this.$toast.fail(message || '购买失败')
+      }).catch(e => (this.buying = false))
     },
-    checked (type) {
-      this.payType = type
-    }
+    openExchange () {}
   }
 }
 </script>

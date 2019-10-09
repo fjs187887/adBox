@@ -23,6 +23,7 @@
       <q-tab name='2' class="tabs" @click="review(1)">已通过</q-tab>
       <q-tab name='3' class="tabs" @click="review(2)">已拒绝</q-tab>
     </q-tabs>
+    <nodata v-if="nodata"/>
     <div v-for="dataInfo in shareList" :key="dataInfo.id" @click="startPage(dataInfo)">
       <q-item >
         <q-item-section avatar>
@@ -71,7 +72,8 @@ export default {
     return {
       tab: '1',
       shareList: [],
-      info: ''
+      info: '',
+      nodata: false
     }
   },
   created () {
@@ -88,12 +90,15 @@ export default {
     },
     review (type) {
       this.shareList = []
+      this.nodata = false
       this.$http.userReviewTask({ page: 1, type: type }, data => {
-        if (data.code === 0 && data.data !== null) {
+        if (data.code === 0 && data.data.length > 0) {
           this.shareList = data.data
           if (data.msg) {
             this.$toast.success(data.msg)
           }
+        } else {
+          this.nodata = true
         }
       }).catch(e => {
       })

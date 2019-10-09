@@ -1,31 +1,47 @@
+<style lang="less" scoped>
+.head{
+  padding: 0 15px;
+  .item{
+    position: relative;
+    padding: 20px 0;
+    justify-content: center;
+    align-items: center;
+    .imgBox{
+      overflow: hidden;
+      img{
+        border-radius: 50%;
+        width:39px;
+      }
+    }
+    .nameBox{
+      padding-right: 20px;
+      font-size: 13px;
+      color: #333;
+    }
+    .idBox{
+      text-align: right;
+      font-size: 13px;
+      color: #ff853a;
+    }
+    >.col-6{
+      text-align: right;
+    }
+  }
+}
+</style>
+
 <template>
-  <div class="row head">
-    <div class="row" style="padding: 10px 30px;width: 100%">
-      <div class="col-1"></div>
-      <div class="row col-11" style="text-align: center">
-        <div class="col-6">
-          访客名称
-        </div>
-        <div class="col-6">
-          访问时间
-        </div>
-      </div>
-    </div>
-    <div class="bot1"></div>
-    <div class="row bot2" v-for="contact in dataInfo" :key="contact.id">
-      <div class="col-1">
+  <div class="head animated fadeIn">
+    <div class="row item btBorder" v-for="contact in dataInfo" :key="contact.id">
+      <div class="col-2 imgBox">
         <span v-if="contact.avatar"><img :src="contact.avatar" class="imgt"></span>
-        <span v-else><img src="../../../statics/user/avatar.png" class="imgt"></span>
+        <span v-else><img src="statics/user/avatar.png" class="imgt"></span>
       </div>
-      <div class="row col-11" style="text-align: center">
-        <div class="col-6">
-          <span v-if="contact.nickname">{{contact.nickname}}</span>
-          <span v-else>{{contact.fans_id}}</span>
-        </div>
-        <div class="col-6">
-          {{contact.create_time}}
-        </div>
+      <div class="col-4 nameBox text-ellipsis">
+        <span v-if="contact.nickname">{{contact.nickname}}</span>
+        <span v-else>{{contact.fans_id}}</span>
       </div>
+      <div class="col-6">{{contact.create_time}}</div>
     </div>
   </div>
 </template>
@@ -39,7 +55,7 @@ export default {
   },
   inject: ['registerRightComponent', 'setTitle'],
   mounted () {
-    this.setTitle('访客')
+    this.setTitle('访客统计')
   },
   created () {
     this.getvistorslist()

@@ -1,4 +1,5 @@
-import init from './callback/init'
+import logined from './callback/logined'
 import message from './callback/message'
+import feedback from './callback/feedback'
 
-export default { init, message }
+export default { logined, message, feedback }

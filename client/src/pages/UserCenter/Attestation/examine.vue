@@ -1,77 +1,120 @@
+<style lang="less" scoped>
+.topStatus{ // 顶部北京栏
+  width: 100%;
+  padding: 20px 15px;
+  background-color: #ff853a;
+  h5{
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 15px;
+  }
+  p{
+    font-size: 12px;
+    line-height: 1;
+    color: #fff;
+  }
+}
+.cenList{
+  padding: 20px 15px;
+  p{
+    font-size: 15px;
+    color: #333;
+    line-height: 1;
+  }
+  .item{
+    /deep/.q-field__control{
+      margin-top: 25px;
+      font-size: 13px;
+      height: 27px!important;
+      &::before{
+        display: none;
+      }
+      /deep/.q-field__native.q-placeholder{
+        color: #666;
+      }
+    }
+  }
+}
+.bottomImg{
+  padding: 20px 0 40px;
+  p{
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 25px;
+  }
+  .q-img{
+    width: 250px;
+    height: 150px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+}
+</style>
+
 <template>
-  <div>
+  <div class="animated fadeIn">
+    <!-- 企业认证 -->
     <div v-if="enterprise">
-      <div class="q-pa-md" style="border-bottom: 5px solid rgb(238, 238, 238);">
-        <div class="row">
-          <div class="col-5">
-            <p><q-icon :name="tubiao" style="font-size:50px;" />{{ shenhe }}</p>
-          </div>
-          <div class="col-7">
-            <p>提交时间：{{ create_time }}</p>
-            <p style="color:red;">{{ info }}</p>
-          </div>
-        </div>
+      <div class="topStatus">
+        <h5>{{ shenhe }}</h5>
+        <!-- <p>提交时间：{{ create_time }}</p> -->
+        <p>{{ info }}</p>
       </div>
-      <div class="q-pa-md" >
-        <div class="col" style="border-left: 2px solid #666;">
-          &nbsp;认证信息
-        </div>
-        <div class="col" style="padding: 10px">
+      <div class="cenList">
+        <p>认证信息</p>
+        <div class="item col">
           <q-input v-model="name" readonly />
+          <q-input v-model="industry" readonly />
           <q-input v-model="address" readonly/>
           <q-input v-model="license" readonly/>
           <q-input v-model="handle" readonly/>
           <q-input v-model="handlePhone" readonly/>
         </div>
       </div>
-      <div class="col" style="font-size: 14px;text-align: center;padding: 0px 40px;">
-        营业执照
+      <div class="bottomImg">
+        <p>营业执照</p>
         <q-img
           :src="front_photo"
           :ratio="16/9"
-          style="margin-top: 10px;margin-bottom: 10px;"
         />
       </div>
     </div>
+    <!-- 个人认证 -->
     <div v-else>
-      <div class="q-pa-md" style="border-bottom: 5px solid rgb(238, 238, 238);">
-        <div class="row">
-          <div class="col-5">
-            <p><q-icon :name="tubiao" style="font-size:50px;" />{{ shenhe }}</p>
-          </div>
-          <div class="col-7">
-            <p>提交时间：{{ create_time }}</p>
-            <p style="color:red;">{{ info }}</p>
-          </div>
-        </div>
+      <div class="topStatus">
+        <h5>{{ shenhe }}</h5>
+        <!-- <p>提交时间：{{ create_time }}</p> -->
+        <p>{{ info }}</p>
       </div>
-      <div class="q-pa-md" >
-        <div class="col" style="border-left: 2px solid #666;">
-          &nbsp;认证信息
-        </div>
-        <div class="col" style="padding: 10px">
+      <div class="cenList">
+        <p>认证信息</p>
+        <div class="item col">
           <q-input v-model="nickName" readonly />
           <q-input v-model="idCard" readonly/>
+          <q-input v-model="industry" readonly />
         </div>
       </div>
-      <div class="col" style="font-size: 14px;text-align: center;padding: 0px 40px;">
-        身份证正面
+      <div class="bottomImg">
+        <p>身份证正面</p>
         <q-img
           :src="front_photo"
           :ratio="16/9"
-          style="margin-top: 10px;margin-bottom: 10px;"
         />
-        身份证反面
+        <p>身份证反面</p>
         <q-img
           :src="back_photo"
           :ratio="16/9"
-          style="margin-top: 10px;margin-bottom: 10px;"
         />
-        手持身份证照片
+        <p>手持身份证照片</p>
         <q-img
           :src="hold_photo"
           :ratio="16/9"
-          style="margin-top: 10px;margin-bottom: 10px;"
         />
       </div>
     </div>
@@ -95,48 +138,44 @@ export default {
       info: '预计1-3个工作日完成审核',
       create_time: '',
       shenhe: '审核中',
-      tubiao: 'assignment'
+      industry: '行业分类：'
     }
   },
-  inject: ['setTitle'],
-  mounted () {
+  inject: ['setTitle', 'registerLeftComponent'],
+  created () {
+    this.registerLeftComponent(() => {
+      this.$router.push({ path: '/user' })
+    })
     this.$http.post('app/UserAuthentication/check_isauth', {}, (res) => {
-      console.log(res)
-      this.create_time = res.data.create_time
-      if (res.data.type === 1) {
+      var data = res.data
+      this.create_time = data.data.create_time
+      this.industry = this.industry + data.industry
+      if (data.data.type === 1) {
         this.enterprise = true
-        this.name = this.name + res.data.name
-        this.address = this.address + res.data.auth_entity_address
-        this.license = this.license + res.data.credentials_number
-        this.handle = this.handle + res.data.auth_operator
-        this.handlePhone = this.handlePhone + res.data.auth_operator_phone
-        this.front_photo = res.data.credentials_front_photo
+        this.name = this.name + data.data.name
+        this.address = this.address + data.data.auth_entity_address
+        this.license = this.license + data.data.credentials_number
+        this.handle = this.handle + data.data.auth_operator
+        this.handlePhone = this.handlePhone + data.data.auth_operator_phone
+        this.front_photo = data.data.credentials_front_photo
       } else {
-        this.nickName = this.nickName + res.data.name
-        this.idCard = this.idCard + res.data.credentials_number
-        console.log(res.data.credentials_front_photo)
-        this.front_photo = res.data.credentials_front_photo
-        this.back_photo = res.data.credentials_back_photo
-        this.hold_photo = res.data.credentials_hold_photo
+        this.nickName = this.nickName + data.data.name
+        this.idCard = this.idCard + data.data.credentials_number
+        this.front_photo = data.data.credentials_front_photo
+        this.back_photo = data.data.credentials_back_photo
+        this.hold_photo = data.data.credentials_hold_photo
       }
-      if (res.data.audit_status === 0) {
+      if (data.data.audit_status === 0) {
         this.setTitle('待审核')
-      } else if (res.data.audit_status === 1) {
+      } else if (data.data.audit_status === 1) {
         this.setTitle('审核未通过')
         this.shenhe = '审核未通过'
-        this.tubiao = 'assignment_late'
-      } else if (res.data.audit_status === 2) {
+      } else if (data.data.audit_status === 2) {
         this.setTitle('已认证')
         this.info = '完成认证，可以发任务了'
         this.shenhe = '已认证'
-        this.tubiao = 'assignment_turned_in'
       }
     })
   }
 }
 </script>
-<style>
-  p{
-    line-height: 25px;
-  }
-</style>

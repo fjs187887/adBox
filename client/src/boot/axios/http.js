@@ -1,3 +1,4 @@
+import store from 'src/store'
 import Http from './http/index'
 import { CallAppSdkNoCallback } from '../app-sdk'
 
@@ -89,11 +90,26 @@ export default class {
   getMessageSession (page, callback) {
     return this.get('message:sessions.get', { page }, callback)
   }
+  getFansSession (page, callback) {
+    return this.get('message:fans.get', { page }, callback)
+  }
+  getSystemSession (data, callback) {
+    let ajax = this.get('message:system.get', data, callback)
+    ajax.then(({ data: { errcode, data } }) => {
+      if (errcode === 0) {
+        store.dispatch('setSessionList', { type: 'system', sessions: data })
+      }
+    })
+    return ajax
+  }
   getMessageSessionById (sid, callback) {
     return this.get('message:session.get', { sid }, callback)
   }
-  getMessages (sid, callback) {
-    return this.get('message:get', { sid }, callback)
+  getMessages (data, callback) {
+    return this.get('message:get', data, callback)
+  }
+  sendMessage (sid, message, callback) {
+    return this.post('message:send', { sid, message }, callback)
   }
   utaskcoupon (data, callback) {
     // http://192.168.1.77/app/task/utaskcoupon
@@ -153,6 +169,9 @@ export default class {
   checksta (data, callback) {
     return this.post('app/UserAuthentication/check_isauth', data, callback)
   }
+  brokerage (data, callback) {
+    return this.post('app/UserCoupon/brokerage', data, callback)
+  }
   getHotTextPackages (callback) {
     return this.get('hot-text:packages.get', callback)
   }
@@ -165,8 +184,11 @@ export default class {
   getHotRecommend (category, page, callback) {
     return this.get('hot-text:recommend.get', { category, page }, callback)
   }
-  getHotMyself (categroy, page, callback) {
-    return this.get('hot-text:myself.get', { categroy, page }, callback)
+  getHotStatistics (callback) {
+    return this.get('hot-text:statistics', callback)
+  }
+  getHotMyself (page, callback) {
+    return this.get('hot-text:myself.get', { page }, callback)
   }
   getHotContent (source, callback) {
     return this.get('hot-text:content.get', { source }, callback)
@@ -180,7 +202,7 @@ export default class {
   delHotAd (id, callback) {
     return this.post('hot-text:ads.del', { id }, callback)
   }
-  publishHot (id, setting, callback) {
+  publishHot (id, setting, type, callback) {
     return this.post('hot-text:content.publish', { id, setting }, callback)
   }
 }

@@ -1,38 +1,48 @@
 <style lang="less" scoped>
   .scrollBox{
+    position: fixed;
+    top:50px;
+    left:0;
+    z-index: 10;
+    background: #ffffff;
     width: 100%;
     overflow-x: scroll;
-  }
-  .pay-item {
-    border-radius: 10px;
-    width: 20%;
-    margin: 10px 2.5%;
-    height: auto;
-    line-height: 3;
-    color: black;
-    border: 1px grey solid;
-  }
-  .pay-item.primary {
-    border: 1px #ff853a solid;
-    color: #ff853a;
+    border-bottom: 5px solid #e6e6e6;
+    .scrollItem{
+      width: 550px;
+      .pay-item {
+        border-radius: 3px;
+        width: 75px;
+        margin: 10px 0px 10px 15px;
+        height: 30px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px #999 solid;
+      }
+      .pay-item.primary {
+        border: 1px #ff853a solid;
+        color: #ff853a;
+      }
+    }
   }
 </style>
 
 <template>
   <q-layout>
-    <Affix class="isFixed" :offset-top="45">
-      <div v-if="show" class="scrollBox bg-white">
-        <div class="row text-center text-grey ">
+      <div v-if="show" class="scrollBox">
+        <div class="row text-center scrollItem">
           <div v-for="item of sxOptions" :key="item.id" class="pay-item" :class="{primary: optionModel===item.value}" @click="plf_checked(item.value)">
             <p>{{item.label}}</p>
           </div>
         </div>
       </div>
-    </Affix>
     <q-page-container>
-      <q-page class="animated fadeIn">
-        <q-infinite-scroll ref="listScoll" @load="loadMore" :offset="250" :disable="true">
+      <q-page class="animated ">
+        <q-infinite-scroll ref="listScoll" @load="loadMore">
           <q-pull-to-refresh @refresh="refresh">
+            <nodata v-if="nodata"/>
             <q-list class="row" v-for="dataInfo in listInfo" :key="dataInfo.id" @click="startPage(dataInfo)">
               <q-item class="col-12">
                 <q-item-section>
@@ -137,12 +147,12 @@ export default {
           label: '冻结',
           value: 5
         }
-      ]
+      ],
+      nodata: false
     }
   },
   created () {
     this.optionModel = this.$route.query.data
-    this.getData()
   },
   methods: {
     toggle () {
@@ -151,39 +161,29 @@ export default {
     plf_checked (index) {
       this.show = !this.show
       this.optionModel = index
-      this.getData()
+      this.refresh()
     },
     startPage (path) {
       this.$router.push({ path: path, query: '' })
     },
-    getData () {
-      this.listInfo = []
-      this.$http.walletDetail({ type: this.optionModel }, data => {
-        if (data.code === 0 && data.data.length > 0) {
-          this.listInfo = data.data
-          this.$refs.listScoll.resume()
-        } else {
-
-        }
-      }).catch(e => {
-      })
-    },
     loadMore (index, done) {
-      if (this.listInfo.length === 0) {
-        this.$refs.listScoll.reset()
-        done(true)
-        return
+      if (index === 1) {
+        this.listInfo = []
       }
-      index = index + 1
       this.$http.walletDetail({ type: this.optionModel, page: index }, data => {
-        if (data.code === 0 && data.data.length > 0) {
+        if (data.code === 0 && data.data.length >= 0) {
           this.listInfo = this.listInfo.concat(data.data)
-          done(false)
-        } else {
-          done(true)
+          if (data.data.length < 10) {
+            this.$refs.listScoll.stop()
+          }
         }
+        if (this.listInfo.length === 0) {
+          this.nodata = true
+          this.$refs.listScoll.stop()
+        }
+        done()
       }).catch(e => {
-        done(true)
+        done()
       })
     },
     refresh (done) {
@@ -191,11 +191,16 @@ export default {
       this.$http.walletDetail({ type: this.optionModel }, data => {
         if (data.code === 0 && data.data.length > 0) {
           this.listInfo = data.data
+          if (this.listInfo.length > 9) {
+            this.$refs.listScoll.reset()
+            this.$refs.listScoll.resume()
+          }
         } else {
-
+          this.nodata = true
         }
-        done(true)
+        done()
       }).catch(e => {
+        done()
       })
     }
   }

@@ -1,41 +1,31 @@
-export const ONLINE_STATE_LOGINED = 0x1
-export const ONLINE_STATE_CONNECTED = 0x2
+export const WS_STATE_CLOSED = 0
+export const WS_STATE_CONNECTING = 1
+export const WS_STATE_CONNECTED = 2
 
 export default {
   state: {
     token: null,
-    ws_state: 0,
-    ws_connecting: false
+    connected: false
   },
   getters: {
-    WS_online: state => (state.ws_state & ONLINE_STATE_CONNECTED) === ONLINE_STATE_CONNECTED,
-    WS_logined: state => state.token
+    WsLogined: state => state.token,
+    WsConnected: state => state.connected === WS_STATE_CONNECTED,
+    WsConnecting: state => state.connected === WS_STATE_CONNECTING
   },
   mutations: {
-    'state.online' (state, value) {
-      if (value) {
-        state.ws_state = state.ws_state | ONLINE_STATE_CONNECTED
-      } else {
-        state.ws_state = state.ws_state & ~ONLINE_STATE_CONNECTED
-        state.ws_state = state.ws_state & ~ONLINE_STATE_LOGINED
-      }
-    },
     'state.logined' (state, value) {
       state.token = value
     },
-    'state.connecting' (state, value) {
-      state.ws_connecting = value
+    'state.connected' (state, value) {
+      state.connected = value
     }
   },
   actions: {
-    onlineState ({ commit }, state) {
-      commit('state.online', state)
-    },
-    loginState ({ commit }, state) {
+    updateWsLoginState ({ commit }, state) {
       commit('state.logined', state)
     },
-    updateConnectState ({ commit }, state) {
-      commit('state.connecting', state)
+    updateWsConnectState ({ commit }, state) {
+      commit('state.connected', state)
     }
   }
 }

@@ -13,19 +13,19 @@
         </li> -->
       </ul>
       <div class="rightBox" align="right">
-        <q-btn flat round dense @click="startPage('/search')">
+        <q-btn flat round dense @click="startPage('/search/search-task')">
           <img src="statics/footer/search.png" alt="">
         </q-btn>
         <q-btn flat round dense>
           <img src="statics/footer/fb.png" alt="">
           <q-menu :offset="[0, 21]" transition-show="jump-down" transition-hide="jump-up">
-            <q-item class="c-item" @click="startPage('/businessaccount')" clickable v-close-popup>
+            <q-item class="c-item" @click="startPage('/business')" clickable v-close-popup>
               <img  src="statics/menu/tianjia.png"/> 关注商家
             </q-item>
             <q-item class="c-item" @click="$openCamera(2,startSweepCode)" clickable v-close-popup>
               <img src="statics/menu/saoyisao.png"/> 扫一扫
             </q-item>
-            <q-item class="c-item" @click="startPage('/usercode')" clickable v-close-popup>
+            <q-item class="c-item" @click="startPage('/Invit/qrcode')" clickable v-close-popup>
               <img src="statics/menu/erweima.png"/> 我的二维码
             </q-item>
           </q-menu>

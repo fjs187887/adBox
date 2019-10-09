@@ -1,20 +1,15 @@
 <template>
   <div>
-    <div style="padding: 40px;">
+    <div>
     <q-img
       :src="qr_code"
-      :ratio="1"
     />
     </div>
     <div style="padding: 16px;position: fixed;width: 100%;bottom: 0px;">
       <div class="row" style="margin-top: 10px;padding: 0px 10px 0px 10px;">
         <div class="col" v-for="(item, kk) in rows1" :key="kk" @click="sharers(item.param)">
           <div>
-            <div style="margin: 0px auto;max-width: 50px;">
-              <q-avatar>
-                <img :src="item.src">
-              </q-avatar>
-            </div>
+            <div style="margin: 0px auto;max-width: 50px;"><img style="width:45px;height: 45px;" :src="item.src"></div>
             <div style="margin: 0px auto;max-width: 50px;text-align: center;height: 30px;line-height: 30px;">{{ item.lable }}</div>
           </div>
         </div>
@@ -38,12 +33,12 @@ export default {
           'lable': '朋友圈',
           'src': 'statics/icons/parent.png',
           'param': '1'
+        },
+        {
+          'lable': '保存图片',
+          'src': 'statics/icons/save.png',
+          'param': 'ewm'
         }
-        // {
-        //   'lable': '保存图片',
-        //   'src': 'https://cdn.quasar.dev/img/avatar.png',
-        //   'param': 'ewm'
-        // }
       ],
       invite_url: '',
       qr_code: ''
@@ -79,9 +74,9 @@ export default {
           this.$Message.error('复制失败')
         })
       } else if (val === 'ewm') {
-        this.saveAs(this.qr_code)
+        this.$saveImg('1', -1, this.qr_code)
       } else {
-        this.$share('AD盒子', '邀请海报', this.qr_code, this.qr_code, Number(val), 1).then(data => {
+        this.$share('萤多多', '邀请海报', this.qr_code, this.qr_code, Number(val), 1).then(data => {
           this.$set(this, 'display', data)
         }).catch(e => {
           console.dir(e)

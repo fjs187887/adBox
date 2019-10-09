@@ -1,6 +1,6 @@
 <style lang="less" scoped>
 .formBox{
-  padding: 0 15px;
+  padding: 0 15px 110px;
   .q-input{
     position: relative;
     font-size: 13px;
@@ -56,11 +56,12 @@
     }
   }
 }
-.up-ma{
-  position: relative;
-  margin-top: 40px;
-}
 .submitBox{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
   padding: 20px 15px;
   .q-btn{
     width: 100%;
@@ -78,12 +79,14 @@
 }
 .d-btnBox{
   position: absolute;
-  bottom: 3.5%;
-  height: 45px;
+  bottom: 23px;
+  height: 50px;
   width: 87%;
   box-shadow: 0px -1px 3px #e6e6e6;
   background: #fff;
   .col-6{
+    align-items: center;
+    display: flex;
     padding: 5px 20px;
     .q-btn{
       height: 35px;
@@ -172,8 +175,7 @@
       </div>
     </div>
     <!-- 线 提交 -->
-    <div class="btBorder up-ma"></div>
-    <div class="submitBox">
+    <div class="submitBox topBorder">
       <q-btn rounded color="primary" unelevated label="确认提交" @click="confirmOk" :loading="loading"/>
     </div>
     <!-- 广告弹框 -->
@@ -217,8 +219,12 @@ export default {
       loading: false
     }
   },
-  inject: ['setTitle'],
+  inject: ['setTitle', 'registerLeftComponent'],
   created () {
+    this.registerLeftComponent(() => {
+      this.$router.push({ path: '/user' })
+    })
+    this.setTitle('个人认证')
     this.$http.post('app/UserAuthentication/checksta', {}, (res) => {
       if (res.data === 1) {
         this.$router.push({ 'path': 'examine' })
@@ -226,7 +232,6 @@ export default {
     })
   },
   mounted () {
-    this.setTitle('个人认证')
     this.$http.post('app/UserAuthentication/industry', {}, (res) => {
       this.industrylist = res.data
     })
@@ -269,32 +274,32 @@ export default {
     },
     confirmOk () {
       if (!this.nickName || !this.idCard || !this.frontCard || !this.reverseCard || !this.handCard) {
-        this.$toast.error('必填项不能为空')
+        this.$toast.fail('必填项不能为空')
         return false
       }
       if (this.selection.length === 0) {
-        this.$toast.error('请选择行业分类')
+        this.$toast.fail('请选择行业分类')
         return false
       }
-      if (this.selection.length < 3) {
-        this.$toast.error('行业最少选择3个')
-        return false
-      }
+      // if (this.selection.length < 3) {
+      //   this.$toast.error('行业最少选择3个')
+      //   return false
+      // }
       if (!this.frontCard.path || !this.reverseCard.path || !this.handCard.path) {
-        this.$toast.error('请上传认证照片')
+        this.$toast.fail('请上传认证照片')
         return false
       }
       this.loading = true
       this.$http.post('app/UserAuthentication/okperson', { name: this.nickName, credentials_number: this.idCard, credentials_front_photo: this.frontCard, credentials_back_photo: this.reverseCard, credentials_hold_photo: this.handCard, industry: this.selection }, (res) => {
         if (res.code === 0) {
           this.$toast.success({
-            content: '提交成功',
+            message: '提交成功',
             onClose: () => {
               this.$router.push({ path: 'examine' })
             }
           })
         } else {
-          this.$toast.error(res.msg)
+          this.$toast.fail(res.msg)
           this.loading = false
         }
       })
@@ -307,7 +312,7 @@ export default {
         this.relselect = val
       }
       if (val.length > 3) {
-        this.$toast.error('最多选择三个哦')
+        this.$toast.fail('最多选择三个哦')
         this.selection = this.relselect
       }
     },

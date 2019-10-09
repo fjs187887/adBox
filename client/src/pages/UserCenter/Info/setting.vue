@@ -76,7 +76,7 @@
 <!--        </q-item-section>-->
 <!--      </q-item>-->
   <!-- 当前版本 -->
-      <q-item class="btBorder itemBox" clickable>
+      <q-item class="btBorder itemBox" clickable @click="updateapp()">
         <q-item-section class="leftItem" side>更新版本</q-item-section>
         <q-item-section class="rightItem">
           <div>
@@ -119,6 +119,11 @@ export default {
       this.$http.loginOut(() => this.$router.push('/'))
     },
     change () {
+    },
+    updateapp () {
+      this.$toast.success({
+        message: '已是最新版本'
+      })
     }
   }
 }

@@ -1,4 +1,4 @@
-<style scoped>
+<style scoped lang="less">
   .q-tab--active{
     border:0!important;
   }
@@ -16,6 +16,8 @@
   }
   .leftTit{
     width: 80px;
+    display: flex;
+    align-items: center;
   }
   .leftTit .q-btn{
     font-size: 13px;
@@ -25,6 +27,8 @@
   }
   .cenTit{
     font-size: 16px;
+    line-height: 50px;
+    height: 50px;
   }
   .rigTit{
     width: 80px;
@@ -39,7 +43,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header class="btBorder" v-if="$slots.left||$slots.title||$slots.right||title||leftComponent||rightComponent">
       <q-toolbar q-toolbar class="header-tool">
-        <div class=" leftTit btn-space">
+        <div class="leftTit btn-space">
           <slot name="left">
             <component ref="leftComponent"
                        :is="leftComponent.component"

@@ -1,61 +1,122 @@
 <style scoped lang="less">
-  .q-field{height: 30px;}
-  .img-add{
-    @width: 60px;
-    width: @width;
-    height: @width;
-    border: 1px dashed #ccc;
-    align-items: center;
-    justify-content: center;
-    img{
-      width: 100%;
-      height: 100%;
+  .listItem{
+    .shopP{
+      margin-top: 25px;
+    }
+    p{
+      font-size: 14px;
+      color: #333;
+    }
+    .item.up{ // 上传图片item
+      padding: 20px 0;
+      align-items: end;
+      .ivu-upload.tl{
+        width: 100%;
+        .img-add{ // 通栏上传图片
+          width: 100%;
+          height: 40px;
+        }
+      }
+    }
+    .item{
+      padding: 20px 0;
+      position: relative;
+      align-items: center;
+      .col-3{
+        font-size: 13px;
+        color: #666;
+      }
+      .col-9{
+        align-items: center;
+        display: flex;
+        .van-cell{ // col-9输入框
+          padding: 0;
+        }
+        /deep/.van-switch{ // col-9 开关
+          font-size: 18px!important;
+        }
+        .ivu-upload{ // col-9上传
+          width: 100%;
+          /deep/.ivu-upload-select{
+            width: 100%;
+          }
+          .img-add{
+            width: 84px;
+            height: 84px;
+            border: 1px solid #e6e6e6;
+            color: #e0e0e0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img{
+              width: 100%;
+              height: 100%;
+            }
+          }
+        }
+      }
+      .col-9.switch{
+        justify-content: flex-end;
+      }
     }
   }
 </style>
 <template>
-  <div>
-    <i-form :label-width="60" label-position="top">
-      <FormItem label="商品图片">
-        <Row type="flex" align="middle">
-          <i-col span="6">
-            <Upload :max-size="2048" name='image'
-                    :show-upload-list="false"
-                    :format="['jpg','jpeg','png']"
-                    :action="upload"
-                    :headers="$store.getters.token"
-                    :on-success="uploaded"
-                    :on-format-error="showErrorFormat"
-                    :on-exceeded-size="showErrorSize">
-              <Row class="img-add text-center" type="flex">
-                <img v-if="ad.goods_img" :src="ad.goods_img">
-                <q-icon name="add" v-else></q-icon>
-              </Row>
-            </Upload>
-          </i-col>
-          <i-col span="17" offset="1">建议尺寸140*140像素</i-col>
-        </Row>
-      </FormItem>
-    </i-form>
-    <i-form :label-width="60">
-      <FormItem label="商品名称">
-        <q-input v-model="ad.goods_name" dense placeholder="请输入商品名称"></q-input>
-      </FormItem>
-      <FormItem label="商品价格">
-        <q-input v-model="ad.goods_desc" dense placeholder="请输入商品价格"></q-input>
-      </FormItem>
-      <FormItem label="商品链接">
-        <q-input v-model="ad.link" dense placeholder="请输入商品链接"></q-input>
-      </FormItem>
-      <FormItem label="是否展示">
-        <q-toggle dense v-model="ad.is_show"/>
-      </FormItem>
-    </i-form>
-    <i-form :label-width="60" label-position="top">
-      <FormItem label="店铺二维码">
-        <Row type="flex" align="middle">
-          <i-col span="6">
-            <Upload :max-size="2048" name='image'
+  <div class="listItem">
+    <p>商品广告</p>
+    <div class="item up row btBorder">
+      <div class="col-3">商品图片：</div>
+      <div class="col-9">
+        <Upload :max-size="2048" name='image'
+                :show-upload-list="false"
+                :format="['jpg','jpeg','png']"
+                :action="upload"
+                :headers="$store.getters.token"
+                :on-success="uploaded"
+                :on-format-error="showErrorFormat"
+                :on-exceeded-size="showErrorSize">
+          <Row class="img-add text-center" type="flex">
+            <img :src="ad.goods_img" v-if="ad.goods_img">
+            <q-icon name="add" v-else></q-icon>
+          </Row>
+        </Upload>
+      </div>
+    </div>
+    <div class="item row btBorder">
+      <div class="col-3">商品名称</div>
+      <div class="col-9">
+        <van-field v-model="ad.goods_name" type="textarea" placeholder="请输入商品名称" rows="1" autosize/>
+      </div>
+    </div>
+    <div class="item row btBorder">
+      <div class="col-3">商品价格</div>
+      <div class="col-9">
+        <van-field v-model="ad.goods_desc" type="textarea" placeholder="请输入商品价格" rows="1" autosize/>
+      </div>
+    </div>
+    <div class="item row btBorder">
+      <div class="col-3">商品链接</div>
+      <div class="col-9">
+        <van-field v-model="ad.link" type="textarea" placeholder="请输入商品链接" rows="1" autosize/>
+      </div>
+    </div>
+    <div class="item row btBorder">
+      <div class="col-3">是否展示：</div>
+      <div class="col-9 switch">
+        <van-switch
+                    v-model="ad.is_show"
+                    active-color="#FF853a"
+                    inactive-color="#999"
+                  />
+      </div>
+    </div>
+    <!-- 店铺 -->
+    <p class="shopP">店铺信息</p>
+    <div class="item up row btBorder">
+      <div class="col-3">上传图片：</div>
+      <div class="col-9">
+        <Upload :max-size="2048" name='image'
                     :show-upload-list="false"
                     :format="['jpg','jpeg','png']"
                     :action="upload"
@@ -63,24 +124,25 @@
                     :on-success="uploadedShop"
                     :on-format-error="showErrorFormat"
                     :on-exceeded-size="showErrorSize">
-              <Row class="img-add text-center" type="flex">
-                <img v-if="ad.shop_img" :src="ad.shop_img">
-                <q-icon name="add" v-else></q-icon>
-              </Row>
-            </Upload>
-          </i-col>
-          <i-col span="17" offset="1">建议尺寸140*140像素</i-col>
-        </Row>
-      </FormItem>
-    </i-form>
-    <i-form :label-width="60">
-      <FormItem label="店铺名称">
-        <q-input v-model="ad.shop_name" dense placeholder="请输入店铺名称"></q-input>
-      </FormItem>
-      <FormItem label="联系电话">
-        <q-input v-model="ad.shop_tel" dense placeholder="请输入联系电话"></q-input>
-      </FormItem>
-    </i-form>
+          <Row class="img-add text-center" type="flex">
+            <img v-if="ad.shop_img" :src="ad.shop_img">
+            <q-icon name="add" v-else></q-icon>
+          </Row>
+        </Upload>
+      </div>
+    </div>
+    <div class="item row btBorder">
+      <div class="col-3">店铺名称</div>
+      <div class="col-9">
+        <van-field v-model="ad.shop_name" type="textarea" placeholder="请输入店铺名称" rows="1" autosize/>
+      </div>
+    </div>
+    <div class="item row btBorder">
+      <div class="col-3">联系电话</div>
+      <div class="col-9">
+        <van-field v-model="ad.shop_tel" type="textarea" placeholder="请输入联系电话" rows="1" autosize/>
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -91,12 +153,12 @@ export default {
     uploaded (file) {
       if (file.code === 0) {
         this.$set(this.ad, 'goods_img', file.data)
-      } else this.$Message.error(file.msg || '文件上传失败')
+      } else this.$toast(file.msg || '文件上传失败')
     },
     uploadedShop (file) {
       if (file.code === 0) {
         this.$set(this.ad, 'shop_img', file.data)
-      } else this.$Message.error(file.msg || '文件上传失败')
+      } else this.$toast(file.msg || '文件上传失败')
     }
   }
 }

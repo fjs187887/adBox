@@ -2,8 +2,22 @@
 .header{
   display:flex;
   align-items: center;
+  font-size: 13px;
+  color: #333;
+  line-height: 20px;
+  .cancel{
+    display: flex;
+    img{
+      width:7px;
+      transform: rotate(180deg)
+    }
+  }
   .text-center{
-    flex:1;
+    font-size: 14px;
+  }
+  .save{
+    color: #ff853a;
+    text-align: right;
   }
 }
 .ads{
@@ -20,7 +34,6 @@
   overflow-x:hidden;
   .slide-container{
     position:relative;
-    border:1px solid #ccc;
     min-height:100%; width:100%;
     .q-badge{
       top:0; right:0;
@@ -28,29 +41,36 @@
     }
   }
 }
-
-.add-types{
-  color:#7f7f7f;
+.add-types{ // 选择广告 状态
+  position: relative;
   height: 140px;
   padding-top: 10px;
-  background-color: #F2F2F2;
+  background-color: #fff;
   .ivu-col{
+    padding-top: 8px;
     img {
       display: block;
       overflow: hidden;
       margin: 0 auto 5px;
-      height:32px; width:32px;
-      background-color: #9e9e9e;
+      height:23px; width:23px;
+    }
+    p{
+      font-size: 12px;
+      color: #333;
     }
   }
 }
 </style>
 <template>
     <Modal fullscreen title="选择广告" v-model="opened" footer-hide :closable="false">
-      <div slot="header" class="header">
-        <q-btn flat dense @click="cancel" size="sm">取消</q-btn>
-        <div class="text-center">广告模板</div>
-        <q-btn flat dense @click="save" size="sm">保存</q-btn>
+      <div slot="header" class="header row">
+        <div @click="cancel" class="cancel col">
+          <img src="statics/money/arrow.png" alt="">
+        </div>
+        <div class="text-center col">广告模板</div>
+        <div @click="save" class="save col">
+          保存
+        </div>
       </div>
       <q-carousel class="ads" v-model="onad" animated swipeable navigation infinite padding control-color="primaryteal">
         <q-carousel-slide v-for="(item, index) in ads" :key="index" :name="index">
@@ -62,8 +82,8 @@
           </div>
         </q-carousel-slide>
       </q-carousel>
-      <Row class="add-types" type="flex">
-        <i-col span="6" class="text-center" v-for="type in types" :key="type.type_name" @click.native="addAd(type.type_name)">
+      <Row class="add-types topBorder" type="flex">
+        <i-col span="6" class="typesItem text-center" v-for="type in types" :key="type.type_name" @click.native="addAd(type.type_name)">
           <img :src="type.icon" :alt="type.name">
           <p>{{type.name}}</p>
         </i-col>
@@ -109,10 +129,10 @@ export default {
     },
     addAd (type) {
       if (!this.HotVip && this.ads.length >= 1) {
-        return this.$Message.error('您尚未开通热文推会员，只能添加一条广告')
+        return this.$toast('您尚未开通热文推会员，只能添加一条广告')
       }
       if (this.HotVip && this.ads.length >= 8) {
-        return this.$Message.error('每条热文最多只能添加8条广告')
+        return this.$toast('每条热文最多只能添加8条广告')
       }
       this.ads.push({ type, is_show: true })
       this.onad = this.ads.length - 1

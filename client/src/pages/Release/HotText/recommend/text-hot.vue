@@ -1,90 +1,72 @@
 <style scoped lang="less">
+.itemList{
+  padding: 0 15px;
   .item{
+    position: relative;
     width: 100%;
-    padding: 25px 15px 20px;
-    margin-top: 5px;
+    padding: 20px 0;
     background: #fff;
-    .topBox{
-      font-size: 12px;
-      .topTime{
-        color: #999;
-      }
-      .topStatus{
-        color: rgb(255,133,58);
-        text-align: right;
-      }
-    }
     .cenBox{
-      padding-top: 15px;
       .cenImgBox{
-        width: 60px;
-        height: 60px;
         float: left;
         border-radius: 4px;
         overflow: hidden;
-        margin-right: 15px;
+        padding-right: 15px;
         img{
           width: 100%;
           height: 100%;
         }
       }
       .cenTit{
+        display: block;
+        width: 100%;
         font-size: 14px;
         color: #333;
-        padding-top: 5px;
+        padding-top: 4px;
         opacity: 1;
+        line-height: 24px;
       }
       .cenMoney{
         margin-top: 25px;
         font-size: 12px;
-        color: #333;
-        span{
-          color: rgb(255,90,61);
+        color: #999;
+        align-items: center;
+        .q-btn{
+          float: right;
+          height: 28px;
+          min-height: 0;
+          padding: 0;
+          font-size: 12px;
+          color:#fff;
+          background: #ff853a;
+          box-shadow: none;
+          border-radius: 2px;
         }
       }
     }
-    >.items-end{
-      margin-top: 30px;
-      .q-btn{
-        width:70px;
-        height: 28px;
-        margin-left: 15px;
-        font-size: 12px;
-        color:#999;
-        border-radius: 3px;
-        border: 1px solid #999;
-      }
-    }
   }
+}
 </style>
 
 <template>
-  <q-layout>
-    <q-page-container>
-      <q-page class="animated fadeIn">
-        <q-infinite-scroll ref="listScoll" @load="getData" :offset="250">
-          <q-pull-to-refresh @refresh="refresh">
-            <div class="row item" v-for="item in listInfo" :key="item.source" >
-              <div class="row col-12 cenBox">
-<!--                <div class="cenImgBox"><img :src="dataInfo.cover"></div>-->
-                <q-item-section>
-                  <q-item-label class="cenTit ellipsis">{{item.name}}</q-item-label>
-                  <q-item-label class="cenMoney" >{{item.time | time}}
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn class="bg-primary text-white cenMoney" @click="startPage(item.source)">插入广告</q-btn>
-                </q-item-section>
+  <q-infinite-scroll @load="getData" :offset="250">
+    <q-pull-to-refresh @refresh="refresh">
+      <div class="itemList">
+        <div class="item btBorder" v-for="item in listInfo" :key="item.source" >
+          <div class="row cenBox">
+            <div class="cenImgBox col-4"><img :src="item.cover"></div>
+            <div class="col-8">
+              <p class="row cenTit ellipsis">{{item.name}}<p>
+              <div class="row cenMoney">
+                <span class="timeBox col-8">{{item.time | time}}</span>
+                <q-btn class="col-4" @click="startPage(item.source)">插入广告</q-btn>
               </div>
             </div>
-          </q-pull-to-refresh>
-        </q-infinite-scroll>
-        <q-page-scroller position="bottom-right" :scroll-offset="250" :offset="[18, 18]">
-          <q-btn class="toTop" fab icon="keyboard_arrow_up" color="primary"></q-btn>
-        </q-page-scroller>
-      </q-page>
-    </q-page-container>
-  </q-layout>
+          </div>
+        </div>
+      </div>
+    </q-pull-to-refresh>
+  </q-infinite-scroll>
 </template>
 
 <script>
@@ -97,31 +79,33 @@ export default {
   },
   data () {
     return {
+      page: 1,
       listInfo: [],
       loadings: false
     }
   },
-  mounted () {
-    this.getData()
-  },
   methods: {
-    getData () {
+    getData (page, done) {
       if (this.loadings) {
         return void 0
       }
       this.loadings = true
       this.$http.getHotRecommend(this.$route.params.category, this.page, ({ errcode, data, message }) => {
         this.loadings = false
+        if (typeof done === 'function') done()
         if (errcode === 0) {
           this.page += 1
           this.listInfo = this.listInfo.concat(data)
         }
-      }).catch(e => (this.loadings = false))
+      }).catch(e => {
+        this.loadings = false
+        if (typeof done === 'function') done()
+      })
     },
     refresh (done) {
-      this.page = 0
+      this.page = 1
       this.listInfo = []
-      this.getData()
+      this.getData(1, done)
     },
     startPage (link) {
       this.$router.push({ path: '/taskpreview', query: { link: link } })

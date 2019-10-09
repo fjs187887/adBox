@@ -1,29 +1,22 @@
-import store from 'src/store'
-const connecting = Symbol('connecting')
-const instance = Symbol('instance')
-const heart = Symbol('heart')
+const sym = {
+  _h: Symbol('heart'),
+  _i: Symbol('instance'),
+  _c: Symbol('connecting')
+}
 
 export const HEART_TIME = 50
 
 export default class WS {
   constructor (url, version, events) {
-    let { open, close, error, message } = events || {}
     Object.defineProperties(this, {
-      url: {
-        get: () => url
-      },
-      version: {
-        get: () => version
-      },
-      open: { get: () => open },
-      close: { get: () => close },
-      error: { get: () => error },
-      message: { get: () => message }
+      url: { get: () => url },
+      version: { get: () => version },
+      events: { get: () => events || {} }
     })
   }
   wsclose () {
-    if (this[instance]) {
-      this[instance].close()
+    if (this[sym._i]) {
+      this[sym._i].close()
     }
   }
   send (message) {
@@ -35,56 +28,48 @@ export default class WS {
         } catch (e) {
           reject(e)
         }
-      }).catch(e => {
-        reject(e)
-      })
-    }).then(ws => WS.heartbeat(this, ws))
+      }).catch(e => reject(e))
+    }).then(ws => this.heartbeat())
   }
-  static heartbeat (instance, ws) {
-    if (instance[heart]) {
-      clearTimeout(instance[heart])
+  heartbeat () {
+    if (this[sym._h]) {
+      clearTimeout(this[sym._h])
     }
-    instance[heart] = setTimeout(() => {
-      if (ws.readyState === ws.OPEN) {
-        instance.send({ type: 'HEARTBEAT' })
+    this[sym._h] = setTimeout(() => {
+      let ws = this[sym._i]
+      if (ws && ws.readyState === ws.OPEN) {
+        this.send({ type: 'HEARTBEAT' })
       }
     }, HEART_TIME * 1000)
   }
   getWsInstance () {
+    let Instance = this[sym._i]
+    let Connecting = this[sym._c]
     return new Promise((resolve, reject) => {
-      if (this[connecting]) {
-        this[connecting].then(ws => resolve(ws)).catch(e => reject(e))
+      if (Connecting) {
+        Connecting.then(ws => resolve(ws)).catch(e => reject(e))
       } else {
-        if (!this[instance] || [this[instance].CLOSED, this[instance].CLOSING].some(s => s === this[instance].readyState)) {
-          store.dispatch('updateConnectState', true)
-          this[connecting] = new Promise((resolve, reject) => {
-            let done = false
-            let ws = new WebSocket(this.url)
-            ws.onerror = this.onerror
-            ws.onmessage = this.message
-            ws.onclose = event => {
-              done || reject(event)
-              if (typeof this.close === 'function') this.close(event)
+        if (!Instance || [Instance.CLOSED, Instance.CLOSING].some(s => s === Instance.readyState)) {
+          this[sym._c] = new Promise((resolve, reject) => {
+            if (typeof this.events.start === 'function') this.events.start()
+            let instance = this[sym._i] = new WebSocket(this.url)
+            instance.addEventListener('close', event => this[sym._c] && reject(event))
+            instance.addEventListener('open', event => this[sym._c] && (this.heartbeat(), resolve(instance)))
+            for (let event in this.events) {
+              if (this.events.hasOwnProperty(event)) {
+                instance.addEventListener(event, this.events[event])
+              }
             }
-            ws.onopen = event => {
-              resolve(ws)
-              done = true
-              if (typeof this.open === 'function') this.open(event)
-            }
-          }).then(ws => {
+          })
+          this[sym._c].then(ws => {
+            this[sym._c] = null
             resolve(ws)
-            this[instance] = ws
-            this[connecting] = null
-            WS.heartbeat(this, ws)
-            store.dispatch('updateConnectState', false)
           })
-          this[connecting].catch(e => {
+          this[sym._c].catch(e => {
+            this[sym._c] = null
             reject(e)
-            this[instance] = null
-            this[connecting] = null
-            store.dispatch('updateConnectState', false)
           })
-        } else resolve(this[instance])
+        } else resolve(Instance)
       }
     })
   }

@@ -178,7 +178,7 @@
 
 <script>
 export default {
-  inject: ['setTitle'],
+  inject: ['setTitle', 'registerLeftComponent'],
   data () {
     return {
       goodslist: [],
@@ -191,6 +191,10 @@ export default {
     }
   },
   created () {
+    this.registerLeftComponent(() => {
+      this.$router.push({ path: '/user' })
+    })
+    this.setTitle('金币商城')
     this.$http.post('app/Goods/goodslist', {}, (res) => {
       this.user_gold = res.data.user_gold
       if (res.data.list.exchange.length > 0) {
@@ -205,9 +209,6 @@ export default {
       }
       this.all_order = res.data.all_order
     })
-  },
-  mounted () {
-    this.setTitle('金币商城')
   },
   methods: {
     btBtn () {

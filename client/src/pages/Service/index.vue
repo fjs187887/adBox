@@ -95,23 +95,24 @@
 
 <template>
   <div class="animated fadeIn">
-    <div class="q-pa-md" style="max-width: 400px">
-      <div style="margin: 10px 0px;font-size: 16px">意见反馈</div>
-      <q-input
-        v-model="text"
-        outlined
-        placeholder="请填写您的意见,我们将不断为您改进!"
-        type="textarea"
-        :rules="ruleData.text"
-      />
-    </div>
-    <div class="formBox">
-      <q-input class="btBorder" maxlength="18" v-model="phone_number" dense="true" label="联系电话：" placeholder="请输入联系方式" :rules="ruleData.phone_number"/>
-      <q-input class="btBorder" v-model="email" label="邮箱：" placeholder="请输入邮箱"  :rules="ruleData.email"/>
-    </div>
-    <div class="submitBox" style="position: fixed;bottom: 0;width: 100%">
-      <q-btn rounded color="primary" unelevated label="确认提交" @click="confirmOk"/>
-    </div>
+      <div class="q-pa-md" style="max-width: 400px">
+        <div style="margin: 10px 0px;font-size: 16px">意见反馈</div>
+        <q-input
+          ref="text"
+          v-model="text"
+          outlined
+          placeholder="请填写您的意见,我们将不断为您改进!"
+          type="textarea"
+          :rules="ruleData.text"
+        />
+      </div>
+      <div class="formBox">
+        <q-input class="btBorder" maxlength="18" ref="phone_number" v-model="phone_number"  label="联系电话：" placeholder="请输入联系方式" :rules="ruleData.phone_number"/>
+        <q-input class="btBorder" v-model="email" ref="email" label="邮箱：" placeholder="请输入邮箱"  :rules="ruleData.email"/>
+      </div>
+      <div class="submitBox" style="position: fixed;bottom: 0;width: 100%">
+        <q-btn rounded color="primary" unelevated label="确认提交" @click="confirmOk"/>
+      </div>
   </div>
 </template>
 <script>
@@ -158,15 +159,16 @@ export default {
     confirmOk () {
       if (!this.text || !this.phone_number || !this.email) {
         this.$toast.fail('必填项不能为空')
+      } else {
+        this.$http.post('app/Idea/add', { text: this.text, phone_number: this.phone_number, email: this.email }, (res) => {
+          if (res.code === 0) {
+            this.$toast.success('提交成功')
+            this.$router.push({ path: '/user' })
+          } else {
+            this.$toast.fail('提交失败')
+          }
+        })
       }
-      this.$http.post('app/Idea/add', { text: this.text, phone_number: this.phone_number, email: this.email }, (res) => {
-        if (res.code === 0) {
-          this.$toast.success('提交成功')
-          this.$router.push({ path: 'service' })
-        } else {
-          this.$toast.fail('提交失败')
-        }
-      })
     }
   }
 }

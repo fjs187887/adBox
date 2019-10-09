@@ -93,6 +93,7 @@ export default {
         if (data.code === 0 && data.data !== null) {
           this.agree = false
           this.fail = false
+          this.$router.back()
           if (data.msg) {
             this.$toast.success(data.msg)
           } else {

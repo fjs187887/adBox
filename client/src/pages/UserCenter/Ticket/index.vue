@@ -113,7 +113,7 @@
         <div class="itemBox" v-for="item in list" :key="item.aid">
           <!-- 金额 券 -->
           <div class="row">
-            <span class="moneySpan">{{ item.describe }}</span>
+            <span class="moneySpan">{{ item.denomination }}</span>
             <span class="col">{{ item.couname }}</span>
           </div>
           <div class="row marTop">
@@ -177,9 +177,9 @@
         <div class="TxtBox">
           <h3>使用规则</h3>
           <p class="sTit">如何获取</p>
-          <p>1、邀请好友注册，您和好友分别得到2张佣金券；</p>
-          <p>2、在金币商城可用金币兑换佣金券；</p>
-          <p>3、平台活动奖励。</p>
+<!--          <p>1、邀请好友注册，您和好友分别得到2张佣金券；</p>-->
+          <p>1、在金币商城可用金币兑换佣金券；</p>
+          <p>2、平台活动奖励。</p>
           <p class="sTit">如何使用</p>
           <p>1、分享广告或者领取任务时选择佣金券；</p>
           <p>2、分享广告或者提交任务时消耗佣金券。</p>
@@ -287,7 +287,8 @@ export default {
             message: res.msg
           })
         }
-        this.is_loading = false
+        this.beforetran('mails')
+        this.position = false
       })
     }
   }

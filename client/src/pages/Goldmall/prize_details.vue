@@ -79,6 +79,7 @@
     font-weight: normal;
     border-radius: 25px;
     box-shadow: none;
+    border: 1px solid #999;
   }
 }
 // 弹框
@@ -145,7 +146,7 @@
         </div>
         <div class="row">
           <p class="col-5">{{ info.price }}</p>
-          <p class="col-7">已参与<span class="text-primary">{{ info.yi_count }}</span>人，剩余<span class="text-primary">{{ info.sheng_count }}</span>人</p>
+          <p class="col-7">已参与<span class="text-primary">{{ info.yi_count }}</span>次，剩余<span class="text-primary">{{ info.sheng_count }}</span>次</p>
         </div>
       </div>
     </div>
@@ -170,8 +171,9 @@
     </div>
     <!-- 底部按钮 -->
     <div class="bottomBox topBorder">
-      <q-btn v-if="info.is_btn" color="primary" label="我要抽奖" @click="exchange" />
-      <q-btn disable v-else label="抽奖结束" />
+      <q-btn v-if="info.is_btn && info.status==1" color="primary" label="我要抽奖" @click="exchange" />
+      <q-btn disable v-else-if="!info.is_btn && info.status===0" label="未开始" />
+      <q-btn disable v-else-if="!info.is_btn && info.status===2" label="抽奖结束" />
     </div>
     <!-- 弹框 -->
     <q-dialog v-model="position" position="bottom">
@@ -180,7 +182,7 @@
           <p>我的金币：{{ forms.gold }}</p>
           <van-stepper v-model="value" min="1" max="10" @minus="onMinus" @plus="onPlus"/>
           <p class="mar">1次 = {{ info.price }}</p>
-          <q-btn color="primary" :label=forms.allgold  @click="okprize" />
+          <q-btn :loading="loading" color="primary" :label=forms.allgold  @click="okprize" />
         </div>
       </q-card>
     </q-dialog>
@@ -221,7 +223,8 @@ export default {
       position: false,
       forms: {},
       headers: [],
-      value: 1
+      value: 1,
+      loading: false
     }
   },
   created () {
@@ -282,13 +285,14 @@ export default {
       this.forms.allgold = '共计' + this.info.price_gold * this.forms.num + '金币，确定抽奖'
     },
     okprize () {
+      this.loading = true
       this.$http.post('app/Colprize/okprize', { id: this.info.id, num: this.forms.num }, (res) => {
+        this.loading = false
         if (res.code === 0) {
           this.$toast.success({
             message: '参与成功',
             onClose: () => {
               this.showdata()
-              console.log(123)
             }
           })
         } else {

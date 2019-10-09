@@ -107,6 +107,16 @@ const routes = [
         component: () => import('pages/Message/Fans/index.vue')
       },
       {
+        name: '公告',
+        path: 'gg',
+        component: () => import('pages/Notice/gg.vue')
+      },
+      {
+        name: '客服',
+        path: 'kefu',
+        component: () => import('pages/Notice/kefu.vue')
+      },
+      {
         name: 'msg-to-session',
         path: ':sid',
         component: () => import('pages/Message/detail/index.vue')
@@ -186,21 +196,17 @@ const routes = [
     ]
   },
   {
+    name: '热文推',
+    path: '/taskmain',
+    meta: { QueryAuth: false },
+    component: () => import('pages/Release/HotText/text-main.vue')
+  },
+  {
     name: 'task-detail',
     path: '/',
     meta: { QueryAuth: false },
     component: () => import('src/pages/Layout-header.vue'),
     children: [
-      {
-        name: '公告',
-        path: 'notice/gg',
-        component: () => import('pages/Notice/gg.vue')
-      },
-      {
-        name: '客服',
-        path: 'notice/kefu',
-        component: () => import('pages/Notice/kefu.vue')
-      },
       {
         name: '任务详情',
         path: '/taskdetail',
@@ -246,12 +252,6 @@ const routes = [
         component: () => import('pages/UserCenter/Release/mini/Review/review.vue')
       },
       {
-        name: '热文推',
-        path: '/taskmain',
-        meta: { QueryAuth: false },
-        component: () => import('pages/Release/HotText/text-main.vue')
-      },
-      {
         name: '热文详情',
         path: '/taskpreview',
         meta: { QueryAuth: false },
@@ -267,7 +267,7 @@ const routes = [
         name: '我的热文',
         path: '/myhot',
         meta: { QueryAuth: false },
-        component: () => import('pages/Release/HotText/my-hot.vue')
+        component: () => import('src/pages/UserCenter/my-hot.vue')
       },
       {
         name: '零钱',
@@ -374,7 +374,7 @@ const routes = [
     name: '发布热文',
     path: '/',
     meta: { QueryAuth: false },
-    component: () => import('src/pages/Release/HotText/text-bar.vue'),
+    component: () => import('pages/Release/HotText/text-bar.vue'),
     children: [
       {
         name: '推荐热文',
@@ -396,7 +396,7 @@ const routes = [
         path: 'textoptional',
         redirect: '/textoptional/text-hot',
         meta: { QueryAuth: false },
-        component: () => import('pages/Release/HotText/text-optional.vue'),
+        component: () => import('src/pages/Release/HotText/text-optional.vue'),
         children: [
           {
             name: '全部',
@@ -609,6 +609,18 @@ const routes = [
         component: () => import('pages/Goldmall/index.vue')
       },
       {
+        name: '新手指南',
+        path: '/Goldmall/guide',
+        meta: { QueryAuth: false },
+        component: () => import('pages/Goldmall/guide.vue')
+      },
+      {
+        name: '新手指南详情',
+        path: '/Goldmall/guide_detail',
+        meta: { QueryAuth: false },
+        component: () => import('pages/Goldmall/guide_detail.vue')
+      },
+      {
         name: '签到',
         path: '/Goldmall/signin',
         meta: { QueryAuth: false },
@@ -721,6 +733,12 @@ const routes = [
             path: '/businessaccount/detailmini',
             meta: { QueryAuth: false },
             component: () => import('pages/BusinessAccount/Business/detail-mini.vue')
+          },
+          {
+            name: '小任务',
+            path: '/businessaccount/detailteam',
+            meta: { QueryAuth: false },
+            component: () => import('pages/BusinessAccount/Business/detail-team.vue')
           }
         ]
       },
@@ -772,24 +790,37 @@ const routes = [
         path: 'info/first/:bind_type?/:bind_id?',
         meta: { QueryAuth: false },
         component: () => import('pages/UserCenter/Info/first-update.vue')
-      },
-
-      {
-        name: 'hot-text:index',
-        path: 'hot-text/index',
-        component: () => import('src/pages/UserCenter/HotText/index.vue')
       }
     ]
   },
   {
-    name: 'search',
+    name: '搜索',
     path: '/search',
-    component: () => import('pages/Search/search.vue')
+    component: () => import('pages/Search/search-bar.vue'),
+    children: [
+      {
+        name: '任务',
+        path: 'search-task',
+        component: () => import('pages/Search/search-task.vue')
+      },
+      {
+        name: '商家号',
+        path: 'search-business',
+        component: () => import('pages/Search/search-busins.vue')
+      }
+    ]
   },
   {
-    name: 'search',
-    path: '/searchforuser',
-    component: () => import('pages/Search/search-user.vue')
+    name: '关于我们',
+    path: '/about',
+    component: () => import('pages/Layout-header.vue'),
+    children: [
+      {
+        name: '关于我们',
+        path: '/about',
+        component: () => import('pages/about.vue')
+      }
+    ]
   }
 ]
 

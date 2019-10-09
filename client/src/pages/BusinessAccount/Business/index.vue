@@ -2,7 +2,7 @@
 /* tab */
 .headerTopBox{
   position: fixed;
-  z-index: 5000;
+  z-index: 101;
   background: #fff;
   width: 100%;
 }
@@ -86,8 +86,8 @@ ul li{
   padding: 0 15px;
   border-bottom: 5px solid #f2f2f2;
 }
- .q-btn,
- .q-select{
+.q-btn,
+.q-select{
   font-size: 13px;
   border: 0;
   height: auto;
@@ -98,38 +98,48 @@ ul li{
 .bList{
   height: 90px;
 }
-.bTextBox{
-  padding-top: 20px;
-}
 .bImg{
   display: block;
-  margin: 16px auto;
+  margin: 18px auto 10px;
   width: 57px;
   height: 57px;
   border-radius: 50%;
 }
-.bTextBox .bName{
-  font-size: 14px;
-  line-height: 1;
-}
-.bName img{
-  height: 11px;
-  width: 26px;
-  margin-left: 5px;
-}
-.bTip{
-  margin: 8px 0 5px;
-  line-height: 1;
-  color: rgb(152, 157, 166);
-}
-.bNum{
-  padding:0 4px;
-  width: auto;
-  height: 20px;
-  line-height: 20px;
-  display: inline-block;
-  color: rgb(152, 157, 166);
-  background: #fff9f5;
+.bTextBox{
+  padding-top: 20px;
+  .bName{
+    font-size: 14px;
+    line-height: 1;
+    .bNameP{
+      margin-right: 5px;
+      max-width: 75%;
+      line-height: 20px;
+    }
+    span{
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      img{
+        height: 11px;
+        width: 26px;
+        margin-left: 5px;
+      }
+    }
+  }
+  .bTip{
+    margin: 8px 0 5px;
+    line-height: 1;
+    color: rgb(152, 157, 166);
+  }
+  .bNum{
+    padding:0 4px;
+    width: auto;
+    height: 20px;
+    line-height: 20px;
+    display: inline-block;
+    color: rgb(152, 157, 166);
+    background: #fff9f5;
+  }
 }
 .bBtnBox{
   padding-top: 30px;
@@ -149,15 +159,10 @@ ul li{
   color: rgb(152, 157, 166)!important;
   background: #fff!important;
 }
-/deep/.van-popup.van-popup--bottom{
-  z-index: 5006!important;
-  bottom: 50px!important;
-}
 /deep/.van-picker-column{
   font-size: 13px;
 }
 .tagList{
-  // z-index: 5001;
   width: 100%;
   height: auto!important;
   background: #fff;
@@ -174,6 +179,11 @@ ul li{
     font-size: 13px;
     color: #333;
     list-style: none;
+    img{
+      width: 8px;
+      vertical-align: middle;
+      margin-left: 5px;
+    }
   }
   /deep/.van-dropdown-menu__title{
     font-size: 13px;
@@ -188,15 +198,18 @@ ul li{
     }
   }
 }
+.q-infinite-scroll{
+  padding-top: 105px;
+}
 </style>
 
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <q-layout class="animated fadeIn">
+  <q-layout >
     <div class="headerTopBox">
       <q-header class="">
         <ul class="headerBar">
           <li class="headerList">
-            <router-link class="hListItem" active-class="active" to="/task/businessaccount">商家号</router-link>
+            <router-link class="hListItem" active-class="active" to="/business">商家号</router-link>
           </li>
         </ul>
         <div class="rightBox" align="right">
@@ -222,33 +235,38 @@ ul li{
       <van-dropdown-menu active-color="#ff853a" class="tagList">
         <van-dropdown-item class="Tkvan" @input="zonghe()" v-model="modelSort.value" :options="options" />
         <van-dropdown-item class="Tkvan" @input="searchindustry()" v-model="modelIndustry.value" :options="options1" />
-        <li class="listItem" @click="showDialog=true">{{areaname}} ▾</li>
+        <li class="listItem" @click="showDialog=true">{{areaname}}<img src="statics/TaskHall/down.png"></li>
       </van-dropdown-menu>
     </div>
-      <q-page>
-        <q-infinite-scroll class="animated fadeIn" ref="userScroll" @load="getdata" :offset="250" :disable="true">
-          <div class="row bList" v-for="contact in dataInfo" :key="contact.id" @click="gobusiness(contact)">
-            <div class="bImgBox col-3">
-              <span v-if="contact.avatar"><img class="bImg" :src="contact.avatar" ></span>
-              <span v-else><img class="bImg" src="../../../statics/user/avatar.png" ></span>
-            </div>
-            <div class="bTextBox col-6">
-              <p class="bName">{{contact.nickname}}<img src="../../../statics/TaskHall/geren.png" alt=""></p>
-              <p class="bTip" caption>简介：{{contact.auth_introduction || '暂无简介'}}</p>
-              <p class="col-12 bNum">关注数：{{contact.fanscount}}</p>
-            </div>
-            <div class="bBtnBox col-3" style="text-align: center">
-              <q-btn v-if="contact.isfans==0" class="col-12 bg-primary text-white" >关注</q-btn>
-              <q-btn v-else class="col-12 bg-grey yiguan" >已关注</q-btn>
-            </div>
+    <q-infinite-scroll ref="listScoll" @load="loadMore">
+      <nodata v-if="nodata"/>
+      <q-pull-to-refresh @refresh="refresh">
+      <div class="row bList" v-for="contact in dataInfo" :key="contact.id" @click="gobusiness(contact)">
+        <div class="bImgBox col-3">
+          <span v-if="contact.avatar"><img class="bImg" :src="contact.avatar" ></span>
+          <span v-else><img class="bImg" src="../../../statics/user/avatar.png" ></span>
+        </div>
+        <div class="bTextBox col-6">
+          <div class="bName row">
+            <p class="bNameP text-ellipsis">{{contact.nickname}}</p>
+            <span v-if="contact.role_permission === 1"><img src="../../../statics/TaskHall/geren.png" alt=""></span>
+            <span v-else><img src="../../../statics/TaskHall/qiye.png" alt=""></span>
           </div>
-          <template v-slot:loading>
-            <div class="row justify-center q-my-md">
-              <q-spinner-dots color="primary" size="40px"></q-spinner-dots>
-            </div>
-          </template>
-        </q-infinite-scroll>
-      </q-page>
+          <p class="bTip" caption>简介：{{contact.auth_introduction || '暂无简介'}}</p>
+          <p class="col-12 bNum">关注数：{{contact.fanscount}}</p>
+        </div>
+        <div class="bBtnBox col-3" style="text-align: center">
+          <q-btn v-if="contact.isfans==0" class="col-12 bg-primary text-white" >关注</q-btn>
+          <q-btn v-else class="col-12 bg-grey yiguan" >已关注</q-btn>
+        </div>
+      </div>
+      </q-pull-to-refresh>
+      <template v-slot:loading>
+        <div class="row justify-center q-my-md">
+          <q-spinner-dots color="primary" size="40px"></q-spinner-dots>
+        </div>
+      </template>
+    </q-infinite-scroll>
     <areas-select v-model="showDialog" @onBack="onResult"></areas-select>
   </q-layout>
 </template>
@@ -258,11 +276,12 @@ import AreasSelect from 'app/src/components/areas-select'
 export default {
   components: { AreasSelect },
   created () {
-    this.getdata()
+    // this.getdata()
     this.industry()
   },
   data () {
     return {
+      nodata: false,
       expanded: false,
       modelSort: {
         text: '综合排序',
@@ -304,25 +323,9 @@ export default {
       areaid: ''
     }
   },
-  mounted () {
-    window.addEventListener('scroll', this.barScroll)
-  },
   methods: {
     startPage (path) {
       this.$router.push(path)
-    },
-    barScroll () {
-      // let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop
-      // let Sheader = document.querySelector('.q-header')
-      // if (scrollTop > 0) {
-      //   let opacity = scrollTop / 155
-      //   console.log(scrollTop, opacity)
-      //   opacity = opacity > 1 ? 1 : opacity
-      //   this.opacityStyle = { opacity }
-      //   this.showAbs = true
-      // } else {
-      //   this.showAbs = false
-      // }
     },
     gobusiness (data) {
       this.$http.post('app/visitor/visitorcount', { visitor_id: data.id }, (res) => {
@@ -347,11 +350,10 @@ export default {
       this.$http.post('app/Business/buser', { fnastype: this.modelSort.value }, (res) => {
         if (res.code === 0) {
           this.dataInfo = res.data
+          this.nodata = false
         } else {
           this.dataInfo = []
-          this.$toast.fail({
-            message: res.msg
-          })
+          this.nodata = true
         }
       })
     },
@@ -359,17 +361,16 @@ export default {
       this.$http.post('app/Business/buser', { industry: this.modelIndustry.value }, (res) => {
         if (res.code === 0) {
           this.dataInfo = res.data
+          this.nodata = false
         } else {
           this.dataInfo = []
-          this.$toast.fail({
-            message: res.msg
-          })
+          this.nodata = true
         }
       })
     },
     onResult (value) {
       this.areaid = value.id
-      this.areaname = value.name
+      this.areaname = value.showName
       if (value.name === '') {
         this.areaname = '所在区域'
         this.areaid = ''
@@ -377,28 +378,48 @@ export default {
       this.$http.post('app/Business/buser', { area: this.areaid }, (res) => {
         if (res.code === 0) {
           this.dataInfo = res.data
+          this.nodata = false
         } else {
           this.dataInfo = []
-          this.$toast.fail({
-            message: res.msg
-          })
+          this.nodata = true
         }
       })
     },
-    getdata () {
+    refresh (done) {
       this.$http.post('app/Business/buser', {}, (res) => {
-        if (res.code === 0) {
+        if (res.code === 0 && res.data.length > 0) {
           this.dataInfo = res.data
-        } else {
-          this.$toast.fail({
-            message: res.msg
-          })
+          if (this.dataInfo.length > 9) {
+            this.$refs.listScoll.reset()
+            this.$refs.listScoll.resume()
+          }
         }
+        if (res.data.count === 0) {
+          this.nodata = true
+        }
+        done()
+      })
+    },
+    loadMore (index, done) {
+      if (index === 1) {
+        this.dataInfo = []
+      }
+      this.$http.post('app/Business/buser', { page: index }, (res) => {
+        if (res.code === 0 && res.data.length >= 0) {
+          this.dataInfo = this.dataInfo.concat(res.data)
+          if (res.data.length < 10) {
+            this.$refs.listScoll.stop()
+          }
+        }
+        if (this.dataInfo.length === 0) {
+          this.nodata = true
+          this.$refs.listScoll.stop()
+        }
+        done()
+      }).catch(e => {
+        done()
       })
     }
-  },
-  beforeDestroy () {
-    window.removeEventListener('scroll', this.barScroll)
   }
 }
 </script>

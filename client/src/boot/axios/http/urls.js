@@ -11,6 +11,8 @@ export default {
 
   'message:get': '/app/message/getMessage.html',
   'message:start': '/app/message/startSession.html',
+  'message:fans.get': '/app/message/getFansSessions.html',
+  'message:system.get': '/app/message/getSystemSession.html',
   'message:session.get': '/app/message/getSession.html',
   'message:sessions.get': '/app/message/getSessions.html',
   'message:unread.get': '/app/message/getunread.html',
@@ -18,8 +20,10 @@ export default {
 
   'hot-text:packages.get': '/app/Hottext/packages.html',
   'hot-text:packages.buy': '/app/Hottext/buy.html',
+  'hot-text:content.get': '/app/Hottext/getContent.html',
   'hot-text:category.get': '/app/Hottext/getCategory.html',
   'hot-text:recommend.get': '/app/Hottext/getrecommend.html',
+  'hot-text:statistics': '/app/Hottext/statistics.html',
   'hot-text:myself.get': '/app/Hottext/getself.html',
   'hot-text:ads.get': '/app/Hottext/getAds.html',
   'hot-text:ads.add': '/app/Hottext/addAd.html',

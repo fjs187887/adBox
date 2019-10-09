@@ -140,7 +140,8 @@
     <!-- 背景栏 -->
     <div class="row bg-primary text-white topBox">
       <div class="col-12 statusTxt">
-        <p>{{contact.status | checkStatus}}</p>
+        <span>{{contact.status | checkStatus}}</span>
+        <span v-if="contact.status===1"> ( {{contact.audit_status | auditType}} )</span>
       </div>
       <div class="col-12 tipsTxt">
         <div v-if="contact.status===0" class="col-12">支付剩余时间：<count-down :end-time="endTime"></count-down></div>
@@ -280,6 +281,7 @@
       <br>
       <q-infinite-scroll ref="listScoll" @load="loadMore" :offset="250" :disable="tab!=3">
         <q-pull-to-refresh @refresh="refresh">
+          <nodata v-if="nodata"/>
           <!-- item模块 -->
           <q-list v-for="dataInfo in shareList" :key="dataInfo.id">
             <q-item>
@@ -368,6 +370,16 @@ export default {
       }
       let date = new Date(value * 1000)
       return [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(i => i < 10 ? `0${i}` : i).join('-') + ' ' + [date.getHours(), date.getMinutes()].map(i => i < 10 ? `0${i}` : i).join(':')
+    },
+    auditType (status) {
+      switch (status) {
+        case 0:
+          return '审核中'
+        case 1:
+          return '审核通过'
+        case 2:
+          return '审核未通过'
+      }
     }
   },
   data () {
@@ -395,7 +407,7 @@ export default {
       ],
       listAreas: areas,
       endTime: '',
-      loadings: false,
+      nodata: false,
       status: 0
     }
   },
@@ -537,10 +549,13 @@ export default {
         if (data.code === 0 && data.data) {
           this.shareList = this.shareList.concat(data.data)
           if (data.data.length < 10) {
+            this.$refs.listScoll.reset()
             this.$refs.listScoll.stop()
           }
         }
         if (this.shareList.length === 0) {
+          this.nodata = true
+          this.$refs.listScoll.reset()
           this.$refs.listScoll.stop()
         }
         done()
@@ -557,6 +572,8 @@ export default {
             this.$refs.listScoll.reset()
             this.$refs.listScoll.resume()
           }
+        } else {
+          this.nodata = true
         }
         done()
       }).catch(e => {

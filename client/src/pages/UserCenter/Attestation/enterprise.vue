@@ -56,11 +56,12 @@
     }
   }
 }
-.up-ma{
-  position: relative;
-  margin-top: 40px;
-}
 .submitBox{
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
   padding: 20px 15px;
   .q-btn{
     width: 100%;
@@ -122,8 +123,7 @@
       </div>
     </div>
     <!-- 线 提交 -->
-    <div class="btBorder up-ma"></div>
-    <div class="submitBox">
+    <div class="submitBox topBorder">
       <q-btn rounded color="primary" :loading="loading" unelevated label="确认提交" @click="confirmOk"/>
     </div>
     <!-- 广告弹框 -->
@@ -168,8 +168,11 @@ export default {
       loading: false
     }
   },
-  inject: ['setTitle'],
+  inject: ['setTitle', 'registerLeftComponent'],
   created () {
+    this.registerLeftComponent(() => {
+      this.$router.push({ path: '/user' })
+    })
     this.setTitle('企业认证')
     this.$http.post('app/UserAuthentication/checksta', {}, (res) => {
       if (res.data === 1) {
@@ -191,7 +194,7 @@ export default {
         this.$toast.fail('必填项不能为空')
         return false
       }
-      if (this.relselect.length === 0) {
+      if (this.selection.length === 0) {
         this.$toast.fail('请选择行业分类')
         return false
       }

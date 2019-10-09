@@ -62,7 +62,7 @@ export default {
   },
   methods: {
     goback (value) {
-      this.$router.back(-1)
+      this.$router.push({ path: '/Goldmall' })
     }
   }
 }

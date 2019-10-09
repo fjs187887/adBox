@@ -90,7 +90,7 @@ a:hover,a:active{
 }
 .kBottom{
   height: 73px;
-  widows: 100%;
+  width: 100%;
   background: #fff;
   position: relative;
   bottom: 0;
@@ -159,8 +159,32 @@ a:hover,a:active{
 
 <template>
   <q-layout class="pageZindex" view="lHh Lpr lFf">
-    <q-page-container style=""><router-view/></q-page-container>
-    <!-- <div class="kBottom"></div> -->
+    <q-header class="btBorder" v-if="$slots.left||$slots.title||$slots.right||title||leftComponent||rightComponent">
+      <q-toolbar q-toolbar class="header-tool">
+        <div class=" leftTit btn-space">
+          <slot name="left">
+            <component ref="leftComponent"
+                       :is="leftComponent.component"
+                       v-if="leftComponent"
+                       v-on="leftComponent.on"
+                       v-bind="leftComponent.props"/>
+          </slot>
+        </div>
+        <q-toolbar-title class="cenTit text-center">
+          <slot name="title">{{title}}</slot>
+        </q-toolbar-title>
+        <div class="rigTit btn-space">
+          <slot name="right">
+            <component ref="rightComponent"
+                       :is="rightComponent.component"
+                       v-if="rightComponent"
+                       v-on="rightComponent.on"
+                       v-bind="rightComponent.props"/>
+          </slot>
+        </div>
+      </q-toolbar>
+    </q-header>
+    <q-page-container style=""><router-view ref="view"/></q-page-container>
     <q-footer class="topBorder">
       <q-tabs class="footerTabs" indicator-color="transparent" active-color="primary">
         <q-route-tab active-class="on" replace to="/task/">
@@ -235,13 +259,16 @@ a:hover,a:active{
 
 <script>
 import { mapGetters } from 'vuex'
+import LayoutHeader from './Layout-header'
 export default {
+  extends: LayoutHeader,
   data () {
     return {
       isShow: false,
       isDeg: false,
       confirm: false,
-      userInfo: ''
+      userInfo: '',
+      title: false
     }
   },
   computed: {
@@ -250,6 +277,15 @@ export default {
     })
   },
   methods: {
+    init () {
+      if (this.$refs.view) {
+        this.setTitle(this.$refs.view.title)
+        this.registerLeftComponent(false)
+        this.registerRightComponent(false)
+        this.registerFooterComponent(false)
+        this.setStyle(this.$refs.view.style || {})
+      }
+    },
     show () {
       this.isShow = !this.isShow
       this.isDeg = !this.isDeg
@@ -275,8 +311,8 @@ export default {
 
     userCenter () {
       this.$http.checksta(data => {
-        if (data.code === 0 && data.data) {
-          this.userInfo = data.data
+        if (data.code === 0 && data.data.data) {
+          this.userInfo = data.data.data
         }
       }).catch(e => {
         console.log(e)

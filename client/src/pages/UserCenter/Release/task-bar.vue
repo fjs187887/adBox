@@ -41,15 +41,15 @@
 </style>
 
 <template>
-  <q-layout class="bodyBg animated fadeIn" view="lHh Lpr lFf">
+  <q-layout class="bodyBg " view="lHh Lpr lFf">
     <q-header class="bg-white topBar">
       <div class="row" align="center">
-        <div class="col-2 leftBox" @click="goback('/user')">
+        <div class="col-2 leftBox" @click="$router.back()">
           <img src="../../../statics/login/back.png" alt="">
         </div>
         <q-tabs class="col-8" v-model="tab" indicator-color="transparent" active-color="white" narrow-indicator>
-          <q-route-tab active-class="active" name="1" to="/userreleasetask" class="tabs">分享广告</q-route-tab>
-          <q-route-tab active-class="active" name="2" to="/userreleaseminitask" class="tabs">小任务</q-route-tab>
+          <q-route-tab active-class="active" name="1" replace to="/userreleasetask" class="tabs">分享广告</q-route-tab>
+          <q-route-tab active-class="active" name="2" replace to="/userreleaseminitask" class="tabs">小任务</q-route-tab>
           <!-- <q-route-tab active-class="active" name="3" to="/usertask" class="tabs">团队任务</q-route-tab> -->
         </q-tabs>
         <div class="col-2 rightBox" @click="goback('/review')">审核</div>

@@ -136,19 +136,20 @@
 </style>
 
 <template>
-  <q-layout class="animated fadeIn">
+  <q-layout class="animated">
     <!-- 背景栏 -->
     <div class="row bg-primary text-white topBox">
       <div class="col-12 statusTxt">
-        <p>{{contact.status | checkStatus}}</p>
+        <span>{{contact.status | checkStatus}}</span>
+        <span v-if="contact.status===1"> ( {{contact.audit_status | auditType}} )</span>
       </div>
-      <div class="col-12 tipsTxt">
-        <div v-if="contact.status===0" class="col-12">支付剩余时间：<count-down :end-time="endTime"></count-down></div>
-        <div v-if="contact.status===1" class="col-12">开始时间：{{contact.start_time | formatTime}}</div>
-        <div v-if="contact.status===2" class="col-12">结束时间：{{contact.end_time | formatTime}}</div>
-        <div v-if="contact.status===3" class="col-12">任务已经结束，查看数据报表</div>
-        <div v-if="contact.status===4" class="col-12">超时未支付，已取消订单</div>
-        <div v-if="contact.status===5" class="col-12">广告内容不合规，产看原因及修改建议</div>
+      <div class=" row col-12 tipsTxt">
+        <div v-if="contact.status===0" >支付剩余时间：<count-down :end-time="endTime"></count-down></div>
+        <div v-if="contact.status===1" >开始时间：{{contact.start_time | formatTime}}</div>
+        <div v-if="contact.status===2" >结束时间：{{contact.end_time | formatTime}}</div>
+        <div v-if="contact.status===3" >任务已经结束，查看数据报表</div>
+        <div v-if="contact.status===4" >超时未支付，已取消订单</div>
+        <div v-if="contact.status===5" >广告内容不合规，产看原因及修改建议</div>
       </div>
     </div>
     <!-- 切换菜单栏 -->
@@ -277,13 +278,14 @@
     </div>
 <!-- 3分享明细 -->
     <div v-show="tab==3">
-      <q-tabs v-show="contact.tousers==1" class="col-8 text-black q-tabs-c" v-model="tabMs" indicator-color="transparent" active-color="primary" narrow-indicator>
+      <q-tabs v-show="contact.tousers==1" class="col-8 text-black q-tabs-c" v-model="tabMs" indicator-color="transparent" active-color="primary">
         <q-tab name="1" class="tabs" @click="switchShareInfo (0)">已分享</q-tab>
         <q-tab name="2" class="tabs" @click="switchShareInfo (1)">未分享</q-tab>
       </q-tabs>
       <br>
-      <q-infinite-scroll ref="listScoll" @load="loadMore" :offset="1" :disable="tab!=3">
+      <q-infinite-scroll ref="listScoll" @load="loadMore" :disable="tab!=3">
         <q-pull-to-refresh @refresh="refresh">
+          <nodata v-if="nodata"/>
           <!-- item模块 -->
           <q-list v-for="dataInfo in shareList" :key="dataInfo.id">
             <q-item>
@@ -363,6 +365,16 @@ export default {
       }
       let date = new Date(value * 1000)
       return [date.getFullYear(), date.getMonth() + 1, date.getDate()].map(i => i < 10 ? `0${i}` : i).join('-') + ' ' + [date.getHours(), date.getMinutes()].map(i => i < 10 ? `0${i}` : i).join(':')
+    },
+    auditType (status) {
+      switch (status) {
+        case 0:
+          return '审核中'
+        case 1:
+          return '审核通过'
+        case 2:
+          return '审核未通过'
+      }
     }
   },
   data () {
@@ -390,7 +402,7 @@ export default {
       ],
       listAreas: areas,
       endTime: '',
-      // loadings: false,
+      nodata: false,
       status: 0,
       actualNum: 0,
       actualNumCost: 0
@@ -526,13 +538,16 @@ export default {
         this.shareList = []
       }
       this.$http.shareInfo({ tid: this.tid, status: this.status, page: index }, data => {
-        if (data.code === 0 && data.data) {
+        if (data.code === 0 && data.data.length >= 0) {
           this.shareList = this.shareList.concat(data.data)
           if (data.data.length < 10) {
             this.$refs.listScoll.stop()
+            this.$refs.listScoll.reset()
           }
         }
         if (this.shareList.length === 0) {
+          this.nodata = true
+          this.$refs.listScoll.reset()
           this.$refs.listScoll.stop()
         }
         done()
@@ -541,14 +556,17 @@ export default {
       })
     },
     refresh (done) {
+      console.log('refresh')
       this.shareList = []
       this.$http.shareInfo({ tid: this.tid, status: this.status }, data => {
-        if (data.code === 0 && data.data) {
+        if (data.code === 0 && data.data.length > 0) {
           this.shareList = data.data
           if (this.shareList.length > 9) {
             this.$refs.listScoll.reset()
             this.$refs.listScoll.resume()
           }
+        } else {
+          this.nodata = true
         }
         done()
       }).catch(e => {

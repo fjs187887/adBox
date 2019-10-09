@@ -98,7 +98,7 @@
 </style>
 
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <q-layout class="animated fadeIn" view="lHh lpr lFf">
+  <q-layout class="animated" view="lHh lpr lFf">
     <div class="rwBar">
       <div class="row head">
         <div class="col-6" @click="startPage('/sharetask')" style="border-right: 1px #fff solid">
@@ -112,21 +112,14 @@
       </div>
       <Affix  class="taskBar" :offset-top="0">
         <q-tabs class="q-tabs-c" v-model="tab" align="left" indicator-color="transparent" active-color="#000" @input="show=true">
-          <q-route-tab active-class="active" name="1" to="/task/hall/task">分享广告</q-route-tab>
-          <q-route-tab active-class="active" name="2" to="/task/hall/taskmini">小任务</q-route-tab>
-          <q-route-tab active-class="active" name="3" to="/task/hall/taskteam">团队任务</q-route-tab>
+          <q-route-tab active-class="active" name="1" replace to="/task/hall/task">分享广告</q-route-tab>
+          <q-route-tab active-class="active" name="2" replace to="/task/hall/taskmini">小任务</q-route-tab>
+          <q-route-tab active-class="active" name="3" replace to="/task/hall/taskteam">团队任务</q-route-tab>
           <q-btn @click="toggle()" class="btnToggle" flat round dense>
             <img class="img1" v-if="show" src="../../../statics/TaskHall/up.png" alt="">
             <img class="img2" v-if="!show" src="../../../statics/TaskHall/down.png" alt="">
           </q-btn>
         </q-tabs>
-        <!-- 留位 -->
-        <!-- <ul v-show="showAbs" indicator-color="transparent" class="category" v-if="show">
-          <li class="select">全部</li>
-          <li>微博</li>
-          <li>微信</li>
-          <li>朋友圈</li>
-        </ul> -->
       </Affix>
     </div>
     <q-page-container>

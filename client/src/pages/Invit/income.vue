@@ -82,6 +82,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      &:last-child{
+        // text-align: right;
+      }
     }
   }
 }
@@ -114,9 +117,9 @@
         <li class="col-3">分红</li>
       </ul>
       <q-infinite-scroll @load="onLoad">
-      <ul class="row cenInfo" v-show="index<10" v-for="item in infos" :key="item.id">
+      <ul class="row cenInfo" v-for="item in infos" :key="item.id">
         <li class="col-3">{{ item.phone_number }}</li>
-        <li class="col-6">{{ item.all_count }}/{{ item.create_time }}</li>
+        <li class="col-6">{{ item.all_count }}/{{ item.week_count }}</li>
         <li class="col-3 text-primary">{{ item.all_money }}</li>
       </ul>
       </q-infinite-scroll>
@@ -196,7 +199,7 @@ export default {
           this.$toast.success('转入成功')
           this.shouyi()
         } else {
-          this.$toast.fail(res.msg)
+          this.$toast(res.msg)
         }
       })
     },

@@ -62,6 +62,7 @@
   }
   .titleBox{
     padding: 0 15px;
+    margin-top: 15px;
     >.row{
       padding-bottom: 15px;
       p.col-6{
@@ -81,7 +82,6 @@
         color: #666;
       }
     }
-
   }
 }
 .cenRy{
@@ -166,7 +166,7 @@
       <p class="number" v-if="prizeinfo.win_sn">中奖码：{{ prizeinfo.win_sn }}</p>
       <!-- 兑换码 -->
       <div v-if="prizeinfo.code" class="prizeBox">
-        <p>请复制兑换码前往热文推页面兑换</p>
+        <p>请复制兑换码前去兑换</p>
         <div class="copyBox">
           <div class="ma">{{ prizeinfo.code }}</div>
           <div class="copy" v-clipboard:copy="prizeinfo.code" v-clipboard:success="onCopy" v-clipboard:error="onError">复制</div>
@@ -194,7 +194,7 @@
         </div>
         <div class="row">
           <p class="col-5">{{ info.price }}</p>
-          <p class="col-7">已参与<span class="text-primary">{{ info.yi_count }}</span>人，剩余<span class="text-primary">{{ info.sheng_count }}</span>人</p>
+          <p class="col-7">已参与<span class="text-primary">{{ info.yi_count }}</span>次，剩余<span class="text-primary">{{ info.sheng_count }}</span>次</p>
         </div>
       </div>
     </div>
@@ -204,7 +204,7 @@
       <p class="col-3">参加人员</p>
       <span class="col-9" @click="tocanuser">
         <q-avatar size="25px" style="margin-right: 5px;" v-for="item in headers" :key="item.id">
-          <img :src="item.avatar">
+          <img :src="item.avatar || 'statics/user/avatar.png'">
         </q-avatar>
         {{ spec.label }}
       </span>

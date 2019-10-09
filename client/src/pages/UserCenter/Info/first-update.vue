@@ -27,10 +27,12 @@
     box-shadow: none;
     transition: all .2s;
   }
+  .q-btn:disabled{
+    background: #b7bdc7!important;
+  }
   p.text-center{
     margin-top: 25px;
     font-size: 13px;
-    color: #333;
   }
   .btBorder{
     position: relative;
@@ -90,7 +92,7 @@
       <!-- 年龄 -->
       <div class="btBorder">
         <FormItem class="formItem" label=" 年龄" required>
-          <Input type="text" v-model="form.age"/>
+          <Input type="text" v-model="form.age" :maxlength="2"/>
         </FormItem>
       </div>
       <!-- 性别 -->
@@ -119,12 +121,12 @@
       <!-- 手机号 -->
       <div v-if="!logined" class="btBorder">
         <FormItem class="formItem" label="手机号" required>
-          <Input type="text" v-model="form.phone" maxlength="11"/>
+          <Input type="text" v-model="form.phone" :maxlength="11"/>
         </FormItem>
       </div>
       <div v-if="!logined" class="btBorder">
         <FormItem class="formItem" label="验证码" required>
-          <Input class="smsCode" v-model="form.smsCode" maxlength="6"/>
+          <Input class="smsCode" v-model="form.smsCode" :maxlength="6"/>
           <div style="float:right">
             <q-btn v-if="verify_code_time === 0" class="s-txt" dense flat @click="sendVerifyCode">
               <span class="s-txt">发送验证码</span>
@@ -136,7 +138,7 @@
       </div>
       <!-- 按钮 -->
       <q-btn :disabled="disabled" class="nextBtn" color="primary" @click="bindInfo()">下一步</q-btn>
-      <p class="text-center">完善个人信息，接更多任务赚钱。</p>
+      <p style="color:#999;" class="text-center">完善个人信息，接更多任务赚钱。</p>
     </Form>
     <!-- 结束 -->
   </div>
@@ -173,6 +175,9 @@ export default {
     }),
     ...mapGetters(['logined'])
   },
+  mounted () {
+    this.registerLeftComponent(() => this.$router.replace('/login'))
+  },
   methods: {
     ...mapActions(['loginOut', 'updateInfo', 'setUserInfo', 'clearLoinBack']),
     sendVerifyCode () {
@@ -186,18 +191,17 @@ export default {
       this.$http[this.logined ? 'updatePhoneSmsCode' : 'loginSmsCode'](this.form.phone, ({ errcode, data, message }) => {
         if (errcode === 0) {
           fn()
-          this.$Message.info({
-            content: `${data}`,
-            duration: 5
+          this.$toast.success({
+            message: `${data}`
           })
         } else {
           this.verify_code_time = 0
-          this.$Message.error(message || '验证码发送失败')
+          this.$toast.fail(message || '发送失败')
         }
       })
         .catch(e => {
           this.verify_code_time = 0
-          this.$Message.error('验证码发送失败')
+          this.$toast.fail('发送失败')
         })
     },
     bindInfo () {
@@ -206,14 +210,14 @@ export default {
         this.$http.userUpdateInfo(this.form, ({ errcode, data, message }) => {
           if (errcode === 0) {
             this.setLoginInfo(data)
-          } else this.$Message.error(message || '数据更新失败，请重试')
+          } else this.$toast.fail(message || '设置失败')
         })
       } else {
         if (!/^(\+86)?1[3-9]\d{9}$/.test(this.form.phone)) {
-          return void this.$Message.error('手机号格式不正确')
+          return void this.$toast.fail('号码格式错误')
         }
         if (/^\s*$/.test(this.form.vcode)) {
-          return void this.$Message.error('请输入验证码')
+          return void this.$toast.fail('请输入验证码')
         }
         this.$http.login({
           type: `${this.$route.params.bind_type}|info`,
@@ -225,7 +229,7 @@ export default {
           }
         }, ({ errcode, data, message }) => {
           if (errcode === 0) this.setLoginInfo(data)
-          else this.$Message.error(message || '登录失败')
+          else this.$toast.fail(message || '登录失败')
         })
       }
     },

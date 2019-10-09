@@ -26,6 +26,7 @@
   <q-layout>
     <q-infinite-scroll ref="listScoll" @load="loadMore" :offset="250" >
       <q-pull-to-refresh @refresh="refresh">
+        <nodata v-if="nodata"/>
         <!-- item模块 -->
         <div class="row item" v-for="dataInfo in listInfo" :key="dataInfo.id" @click="startPage(dataInfo,'/bill-detail',dataInfo.tid)">
           <!-- 顶部时间 状态 -->
@@ -84,6 +85,7 @@ export default {
   },
   data () {
     return {
+      nodata: false,
       listInfo: [],
       loadings: false,
       type: 3,
@@ -108,7 +110,7 @@ export default {
             this.$refs.listScoll.resume()
           }
         } else {
-
+          this.nodata = true
         }
       }).catch(e => {
       })
@@ -139,7 +141,6 @@ export default {
         if (data.code === 0 && data.data.length > 0) {
           this.listInfo = data.data
         } else {
-
         }
         done(true)
       }).catch(e => {
